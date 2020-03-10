@@ -18,6 +18,11 @@ now = datetime.now()
 def setup(bot):
     bot.add_cog(logging(bot))
     print("Logger Version {}.".format(version))
+    if logurl == None:
+        print("WARNING: No log URL defined, unable to automatically publish logs.")
+    if panic_word == None:
+        print("WARNING: No panic word defined, unable to generate panic logs.")
+
 
 async def run(cmd):
     proc = await asyncio.create_subprocess_shell(
@@ -112,8 +117,14 @@ class logging(commands.Cog):
         if not ctx.guild:
             await ctx.send("I do not log messages sent in DMs")
         else:
-            await ctx.send("My recordings can be found at {0}/{1}".format(logurl, ctx.guild.name))
+            if not logurl == None:
+                await ctx.send("My recordings can be found at {0}/{1}".format(logurl, ctx.guild.name))
+            else:
+                await ctx.send("The asministrator has not set a log URL, you are unable to view my logs.")
 
     @commands.command()
     async def channellog(self, ctx):
-        await ctx.send("My recordings for the channel '{0}' can be found at {1}/{2}/{0}".format(ctx.channel.name, logurl, ctx.guild.name))
+        if not logurl == None:
+            await ctx.send("My recordings for the channel '{0}' can be found at {1}/{2}/{0}".format(ctx.channel.name, logurl, ctx.guild.name))
+        else:
+            await ctx.send("The asministrator has not set a log URL, you are unable to view my logs.")

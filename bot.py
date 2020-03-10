@@ -12,10 +12,20 @@ token = os.getenv('DISCORD_TOKEN')
 botid = os.getenv('DISCORD_ID')
 bname = os.getenv('BOT_NAME')
 if __name__ == "__main__":
-    print("Initializing {}...".format(bname))
-    print("Running {} version {}".format(bname, version))
-    print("------------------------------")
-    print("Cog Versions:")
+    if token == None:
+        print("Bot token missing, check docker config.")
+        exit()
+    elif botid == None:
+        print("Bot ID missing, check docker config.")
+        exit()
+    elif bname == None:
+        print("Bot Name missing, check docker config.")
+        exit()
+    else:
+        print("Initializing {}...".format(bname))
+        print("Running {} version {}".format(bname, version))
+        print("------------------------------")
+        print("Cog Versions:")
 else:
     print("Bot.py not running as main instance. exiting.")
     exit()
