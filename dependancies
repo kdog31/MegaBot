@@ -1,6 +1,4 @@
 mcstatus
 discord
-dotenv
-os
-time
+python-dotenv
 asyncio
