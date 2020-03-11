@@ -21,6 +21,6 @@ class quit(commands.Cog):
             await ctx.send("You are an administrator, restarting bot.")
             print('bot exit requested')
             await client.logout()
-            exit()
+            await exit()
         else:
             await ctx.send("You are not an administrator. Contact your local administrator if there are issues with my functionality.")
