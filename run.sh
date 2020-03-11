@@ -6,3 +6,4 @@ echo Updating internal GIT repository
 git pull && echo Internal GIT repository up to date.
 echo Launching bot.
 python3 bot.py
+echo Bot Exited.
