@@ -24,3 +24,6 @@ class ping(commands.Cog):
         else:
             t =  str(compared.microseconds / 1000) + "ms"
         await ctx.send("Pong {}".format(t))
+    @commands.command()
+    async def source(self, ctx):
+        await ctx.send("Source Code is avalable at https://github.com/kdog31/MegaBot")
