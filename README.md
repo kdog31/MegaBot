@@ -1,9 +1,9 @@
 # MegaBot
 ## Overview
-A discord bot for logging and monitoring. Has the ability to make logs public and detect a 'panic word' to create a seperate log fole for administrators to review. MegaBot is avalable in a docker container and takes environment variables to detirmin bot name, bot id, url for logs to be published etc.
+A discord bot for logging and monitoring. Has the ability to make logs public and detect a 'panic word' to create a separate log file for administrators to review. MegaBot is available in a docker container and takes environment variables to determine bot name, bot id, url for logs to be published etc.
 
 ## Docker
-It is recomended to use a Docker container to run megabot to improve bot restart times and keep megabot running the latest version.
+It is recommended to use a Docker container to run MegaBot to improve bot restart times and keep MegaBot running the latest version.
 ### Docker-Compose
 Here is an example docker-compose file
 ```
@@ -44,11 +44,11 @@ This is how the bot will refer to itself in logs and in chat, excluding the use 
 LOG_URL=
 ```
 This is the URL MegaBot will use as the root for the panic log links and log links. this variable is not required, however the panic and log linking functionality is disabled without it.
-Should you choose to enable log linking your webroot should point to the ./logs mount in the docker-compose.yml file. this is what MegaBot expects the base link to be pointed at, otherwise automatically generated URLs will be malformed.
+Should you choose to enable log linking your web root should point to the ./logs mount in the docker-compose.yml file. this is what MegaBot expects the base link to be pointed at, otherwise automatically generated URLs will be malformed.
 ```
 PANIC_WORD=
 ```
-This is the work that MegaBot will look for in chat to trigger a panic, anybody can say this word and a panic will be triggered. This variable is also optional, however without it the panic functionaliy is disabled.
+This is the word that MegaBot will look for in chat to create a panic log, anybody can say this word and a panic will be triggered. This variable is also optional, however without it the panic functionality is disabled.
 ```
 PANIC_LOG_LEN=
 ```
