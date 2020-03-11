@@ -18,4 +18,4 @@ chmod +x /MegaBot/MegaBot/run.sh && \
 cd /MegaBot/MegaBot && \
 ./pydependancysetup.sh
 
-CMD /MegaBot/MegaBot/run.sh
+ENTRYPOINT /MegaBot/MegaBot/run.sh
