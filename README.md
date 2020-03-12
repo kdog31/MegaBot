@@ -12,7 +12,11 @@ services:
     MegaBot:
         image: kdog31/megabot
         volumes:
+<<<<<<< HEAD
             - ./logs:MegaBot/logs
+=======
+            - ./logs:/MegaBot/logs
+>>>>>>> updated readme to reflect container changes
         env_file:
             - .env
         restart: always
