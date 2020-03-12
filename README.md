@@ -27,6 +27,24 @@ LOG_URL=https://logs.somewebsite.com
 PANIC_WORD=PANIC
 PANIC_LOG_LEN=50
 ```
+Alternatively you can include your environment variables in the docker-compose.yml file. This can be helpful if you are using a Docker frontend, such as Portainer.
+```
+version: '3'
+services:
+    MegaBot:
+        image: kdog31/megabot
+        volumes:
+            - ./logs:/MegaBot/logs
+        environment:
+            - DISCORD_TOKEN=YOUR_DISCORD_TOKEN
+            - DISCORD_ID=YOUR_BOT_ID
+            - BOT_NAME=YOUR_BOT_NAME
+            - LOG_URL=https://logs.somewebsite.com
+            - PANIC_WORD=PANIC
+            - PANIC_LOG_LEN=50
+        restart: always
+        tty: true
+```
 #### Environment breakdown
 ```
 DISCORD_TOKEN=
