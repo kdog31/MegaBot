@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
 from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term
 import os
@@ -51,5 +52,10 @@ async def on_ready():
     print('\n{} active in {} servers with {} users.'.format(bname, len(bot.guilds), count))
     await bot.change_presence(activity=discord.Game(name="System Ready."))
     await RichPresence.main(bot)
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandNotFound):
+        await ctx.send("Command not found.")
 
 bot.run(token)
