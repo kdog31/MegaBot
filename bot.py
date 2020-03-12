@@ -12,13 +12,13 @@ token = os.getenv('DISCORD_TOKEN')
 botid = os.getenv('DISCORD_ID')
 bname = os.getenv('BOT_NAME')
 if __name__ == "__main__":
-    if token == None:
+    if token == "":
         print("Bot token missing, check docker config.")
         exit()
-    elif botid == None:
+    elif botid == "":
         print("Bot ID missing, check docker config.")
         exit()
-    elif bname == None:
+    elif bname == "":
         print("Bot Name missing, check docker config.")
         exit()
     else:
