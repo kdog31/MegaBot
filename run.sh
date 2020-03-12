@@ -4,6 +4,7 @@ echo DISCORD_TOKEN=$DISCORD_TOKEN\\nDISCORD_ID=$DISCORD_ID\\nBOT_NAME=$BOT_NAME\
 cd /MegaBot/MegaBot
 echo Updating internal GIT repository
 git reset --hard HEAD && git pull && echo Internal GIT repository up to date.
+chmod +x /MegaBot/MegaBot/run.sh
 echo Launching bot.
 python3 bot.py
 echo Bot Exited.
