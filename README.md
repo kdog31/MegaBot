@@ -12,7 +12,7 @@ services:
     MegaBot:
         image: kdog31/megabot
         volumes:
-            - ./logs:/MegaBot/MegaBot/logs
+            - ./logs:MegaBot/logs
         env_file:
             - .env
         restart: always
