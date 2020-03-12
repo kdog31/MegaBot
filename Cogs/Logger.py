@@ -99,15 +99,16 @@ class logging(commands.Cog):
                 dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
                 await run("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
             
-            if panic_word in message and ctx.author.bot == False:
-                await ctx.channel.send("Panic word '**{}**' detected, compiling log for download.".format(panic_word))
-                log = open("logs/{}/{}/chat.log".format(guild, channel), "r")
-                paniclog = await tail(log, panic_length, 4098)
-                if not os.path.exists("logs/{}/{}/panic".format(guild, channel)):
-                    os.makedirs("logs/{}/{}/panic".format(guild, channel))
-                output = await listToString(paniclog)
-                open("logs/{}/{}/panic/panic.log".format(guild, channel), "w").write(output)
-                await ctx.channel.send("Panic log completed, you may view it at {1}/{2}/{0}/panic/panic.log".format(ctx.channel.name, logurl, ctx.guild.name))
+            if panic_word != "":
+                if panic_word in message and ctx.author.bot == False:
+                    await ctx.channel.send("Panic word '**{}**' detected, compiling log for download.".format(panic_word))
+                    log = open("logs/{}/{}/chat.log".format(guild, channel), "r")
+                    paniclog = await tail(log, panic_length, 4098)
+                    if not os.path.exists("logs/{}/{}/panic".format(guild, channel)):
+                        os.makedirs("logs/{}/{}/panic".format(guild, channel))
+                    output = await listToString(paniclog)
+                    open("logs/{}/{}/panic/panic.log".format(guild, channel), "w").write(output)
+                    await ctx.channel.send("Panic log completed, you may view it at {1}/{2}/{0}/panic/panic.log".format(ctx.channel.name, logurl, ctx.guild.name))
                 
         else:
             pass

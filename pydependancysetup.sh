@@ -1,1 +1,0 @@
-input=dependancies; while IFS= read -r line; do pip3 install $line; done < $input
