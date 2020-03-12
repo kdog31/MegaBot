@@ -11,18 +11,21 @@ version = '0.5.5 Alpha'
 load_dotenv()
 logurl = os.getenv('LOG_URL')
 panic_word = os.getenv('PANIC_WORD')
-panic_length = int(os.getenv('PANIC_LOG_LEN'))
+if os.getenv('PANIC_LOG_LEN') != None:
+    panic_length = int(os.getenv('PANIC_LOG_LEN'))
+else:
+    print("Panic log length not set, defaulting to 50.")
+    panic_length = 50
 
 now = datetime.now()
 
 def setup(bot):
     bot.add_cog(logging(bot))
     print("Logger Version {}.".format(version))
-    if logurl == None:
-        print("WARNING: No log URL defined, unable to automatically publish logs.")
-    if panic_word == None:
-        print("WARNING: No panic word defined, unable to generate panic logs.")
-
+    if logurl == "":
+        print("   WARN: Log URL not set, automatic log publishing disabled.")
+    if panic_word == "":
+        print("   WARN: Panic word not set, unable to create panic logs.")
 
 async def run(cmd):
     proc = await asyncio.create_subprocess_shell(
@@ -109,7 +112,6 @@ class logging(commands.Cog):
                     output = await listToString(paniclog)
                     open("logs/{}/{}/panic/panic.log".format(guild, channel), "w").write(output)
                     await ctx.channel.send("Panic log completed, you may view it at {1}/{2}/{0}/panic/panic.log".format(ctx.channel.name, logurl, ctx.guild.name))
-                
         else:
             pass
 
@@ -118,14 +120,17 @@ class logging(commands.Cog):
         if not ctx.guild:
             await ctx.send("I do not log messages sent in DMs")
         else:
-            if not logurl == None:
+            if logurl != "":
                 await ctx.send("My recordings can be found at {0}/{1}".format(logurl, ctx.guild.name))
             else:
-                await ctx.send("The asministrator has not set a log URL, you are unable to view my logs.")
+                await ctx.send("Public viewing of logs is not enabled. Contact the administrator for more information")
 
     @commands.command()
     async def channellog(self, ctx):
-        if not logurl == None:
-            await ctx.send("My recordings for the channel '{0}' can be found at {1}/{2}/{0}".format(ctx.channel.name, logurl, ctx.guild.name))
+        if not ctx.guild:
+            await ctx.send("I do not log messages sent in DMs")
         else:
-            await ctx.send("The asministrator has not set a log URL, you are unable to view my logs.")
+            if logurl != "":
+                await ctx.send("My recordings for the channel '{0}' can be found at {1}/{2}/{0}".format(ctx.channel.name, logurl, ctx.guild.name))
+            else:
+                await ctx.send("Public viewing of logs is not enabled. Contact the administrator for more information")
