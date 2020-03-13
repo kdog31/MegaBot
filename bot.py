@@ -69,4 +69,5 @@ signal.signal(signal.SIGTERM, sigterm_handler)
 try:
     bot.run(token)
 finally:
+    print("Exiting gracefully")
     exit(0)
