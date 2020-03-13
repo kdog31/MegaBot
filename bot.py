@@ -6,6 +6,8 @@ from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term
 import os
 import time
 import asyncio
+import signal
+import sys
 version = '2.0.1'
 
 load_dotenv()
@@ -58,4 +60,13 @@ async def on_command_error(ctx, error):
     if isinstance(error, CommandNotFound):
         await ctx.send("Command not found.")
 
-bot.run(token)
+def sigterm_handler(_signo, _stack_frame):
+    # Raises SystemExit(0):
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, sigterm_handler)
+
+try:
+    bot.run(token)
+finally:
+    exit(0)
