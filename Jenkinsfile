@@ -33,7 +33,8 @@ node {
         }
     }
     stage('Deploy image'){
-        sh 'docker container stop megabotstaging_MegaBotStaging_1'
-        sh 'docker container start megabotstaging_MegaBotStaging_1'
+        sh 'docker container stop MegaBotStaging'
+        sh 'docker container rm MegaBotStaging'
+        sh 'docker run --name MegaBotStaging --env-file ~/.env -t kdog31/megabot:staging'
     }
 }
