@@ -32,9 +32,4 @@ node {
             app.push("staging")
         }
     }
-    stage('Deploy image'){
-        sh 'docker container stop MegaBotStaging'
-        sh 'docker container rm MegaBotStaging'
-        sh 'docker run --name MegaBotStaging -v /home/kainen/.env:/Megabot/.env  -t kdog31/megabot:staging'
-    }
 }

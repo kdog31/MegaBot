@@ -33,8 +33,4 @@ node {
             app.push("latest")
         }
     }
-    stage('Deploy image'){
-        sh 'docker container stop megabot_MegaBot_1'
-        sh 'docker container start megabot_MegaBot_1'
-    }
 }
