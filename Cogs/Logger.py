@@ -147,3 +147,7 @@ class logging(commands.Cog):
         #except:
             #await ctx.send("{ctx.author}, Unfortunatly and error occured and i was unable to opt you out. Please inform you server administrator.")
             #raise
+    
+    @commands.command()
+    async def optouts(self, ctx):
+        await ctx.send(str(optouts))
