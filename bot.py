@@ -58,4 +58,8 @@ async def on_command_error(ctx, error):
     if isinstance(error, CommandNotFound):
         await ctx.send("Command not found.")
 
+@bot.event
+async def on_member_join(self, ctx):
+    await ctx.send("welcome to the server.\n In accordance with the 2019 Data protection act i am required to inform you that i log conversations that occur on this server. if you wish to optout of this you may use the command `@megabot optout`")
+
 bot.run(token)
