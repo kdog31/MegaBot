@@ -89,7 +89,7 @@ class logging(commands.Cog):
         self.bot = bot
         self.optouts = {}
         if not os.path.exists('optouts.pickle'):
-            open('optouts.pickle', 'c').close()
+            open('optouts.pickle', 'a').close()
         with open('optouts.pickle', 'rb') as handle:
             self.optouts = pickle.load(handle)
 
