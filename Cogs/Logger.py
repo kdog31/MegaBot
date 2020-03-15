@@ -139,10 +139,9 @@ class logging(commands.Cog):
     @commands.command()
     async def optout(self, ctx):
         #try:
-        if ctx.guild.id in optouts:
-            continue
-        else:
+        if not ctx.guild.id in optouts:
             self.optouts[ctx.guild.id] = []
+            
         optouts[ctx.guild.id].append(ctx.author.id)
         await ctx.send("{ctx.author}, You have successfully opted out of logging.")
         #except:
