@@ -74,19 +74,19 @@ async def listToString(s):
     # return string   
     return (str1.join(s))
 
+async def optcheck(self, ctx):
+    try:
+        if ctx.author.id in self.optouts[ctx.guild.id]:
+            return True
+        else:
+            return False
+    except KeyError:
+        return False
+
 class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.optouts = {}
-
-    async def optcheck():
-        try:
-            if ctx.author.id in self.optouts[ctx.guild.id]:
-                return True
-            else:
-                return False
-        except KeyError:
-            return False
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -98,7 +98,7 @@ class logging(commands.Cog):
             
             dt_str = now.strftime("%m/%d/%Y-%H:%M:%S")
             
-            if not self.optcheck():
+            if not optcheck(self, ctx):
                 if os.path.exists("logs/{}/{}".format(guild, channel)):
                     open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
                 else:
