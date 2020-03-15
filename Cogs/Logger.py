@@ -148,7 +148,7 @@ class logging(commands.Cog):
             print(self.optouts)
             await ctx.send("You have successfully opted out")
         except Exception as e:
-            await ctx.send("There was an error opting out. please try again later. \n Here is the exception details{}".format(e))
+            await ctx.send("There was an error opting out. please try again later. \n Here is the exception details\n ```{}```".format(e))
 
     @commands.command()
     async def optin(self, ctx):
@@ -160,6 +160,6 @@ class logging(commands.Cog):
                 else:
                     await ctx.send("You were never opted out on this server.")
             else:
-                await ctx.send("Nobody has opted out on this server")
+                await ctx.send("You were never opted out on this server.")
         except Exception as e:
-            await ctx.send("There was an error opting in. please try again later. \n Here is the exception details{}".format(e))
+            await ctx.send("There was an error opting in. please try again later. \n Here is the exception details\n ```{}```".format(e))
