@@ -155,7 +155,7 @@ class logging(commands.Cog):
         try:
             if ctx.guild.id in self.optouts:
                 if ctx.author.id in optouts[ctx.guild.id]:
-                    optouts[ctx.guild.id].remove(ctx.author.id)
+                    self.optouts[ctx.guild.id].remove(ctx.author.id)
                     await ctx.send("You have successfully opted back in.")
                 else:
                     await ctx.send("You were never opted out on this server.")
