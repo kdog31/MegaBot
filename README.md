@@ -35,6 +35,7 @@ services:
         image: kdog31/megabot
         volumes:
             - ./logs:/MegaBot/logs
+            - ./optouts:/MegaBot/optouts
         environment:
             - DISCORD_TOKEN=YOUR_DISCORD_TOKEN
             - DISCORD_ID=YOUR_BOT_ID

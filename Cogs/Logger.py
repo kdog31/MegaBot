@@ -88,8 +88,8 @@ class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.optouts = {}
-        if os.path.exists('optouts.pickle'):
-            with open('optouts.pickle', 'rb') as handle:
+        if os.path.exists('optouts/optouts.pickle'):
+            with open('optouts/optouts.pickle', 'rb') as handle:
                 self.optouts = pickle.load(handle)
 
     @commands.Cog.listener()
@@ -160,7 +160,7 @@ class logging(commands.Cog):
             self.optouts[ctx.guild.id].append(ctx.author.id)
             print(self.optouts)
             await ctx.send("You have successfully opted out")
-            with open('optouts.pickle', 'wb') as handle:
+            with open('optouts/optouts.pickle', 'wb') as handle:
                 pickle.dump(self.optouts, handle, protocol=pickle.HIGHEST_PROTOCOL)
         except Exception as e:
             await ctx.send("There was an error opting out. please try again later. \n Here is the exception details\n ```{}```".format(e))
@@ -172,7 +172,7 @@ class logging(commands.Cog):
                 if ctx.author.id in self.optouts[ctx.guild.id]:
                     self.optouts[ctx.guild.id].remove(ctx.author.id)
                     await ctx.send("You have successfully opted back in.")
-                    with open('optouts.pickle', 'wb') as handle:
+                    with open('optouts/optouts.pickle', 'wb') as handle:
                         pickle.dump(self.optouts, handle, protocol=pickle.HIGHEST_PROTOCOL)
                 else:
                     await ctx.send("You were never opted out on this server.")
