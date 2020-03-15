@@ -79,7 +79,7 @@ class logging(commands.Cog):
         self.bot = bot
         self.optouts = {}
 
-    async def optcheck(ctx):
+    async def optcheck(ctx, self):
         try:
             if ctx.author.id in self.optouts[ctx.guild.id]:
                 return True
