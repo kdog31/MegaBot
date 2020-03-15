@@ -140,7 +140,7 @@ class logging(commands.Cog):
     async def optout(self, ctx):
         #try:
         if ctx.guild.id in optouts:
-            pass
+            continue
         else:
             self.optouts[ctx.guild.id] = []
         optouts[ctx.guild.id].append(ctx.author.id)
