@@ -88,7 +88,7 @@ class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.optouts = {}
-        with open('optouts.pickle', 'rbw') as handle:
+        with open('optouts.pickle', 'rbc') as handle:
             self.optouts = pickle.load(handle)
 
     @commands.Cog.listener()
