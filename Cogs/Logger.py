@@ -154,7 +154,7 @@ class logging(commands.Cog):
     async def optin(self, ctx):
         try:
             if ctx.guild.id in self.optouts:
-                if ctx.author.id in optouts[ctx.guild.id]:
+                if ctx.author.id in self.optouts[ctx.guild.id]:
                     self.optouts[ctx.guild.id].remove(ctx.author.id)
                     await ctx.send("You have successfully opted back in.")
                 else:
