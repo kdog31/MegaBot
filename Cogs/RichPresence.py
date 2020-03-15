@@ -4,14 +4,13 @@ from time import sleep
 import asyncio
 from dotenv import load_dotenv
 import os
-version = '1.0.1'
 
 load_dotenv()
 bname = os.getenv('BOT_NAME')
 
 def setup(bot):
     bot.add_cog(servers(bot))
-    print("RichPresence Version {}.".format(version))
+    print("MegaBot RichPresence module loaded.")
 
 def getusers(bot):
     onlineusers = 0

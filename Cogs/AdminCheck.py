@@ -1,10 +1,9 @@
 import discord
 from discord.ext import commands
-version = '1.0'
 
 def setup(bot):
     bot.add_cog(whoami(bot))
-    print("AdminCheck Version {}.".format(version))
+    print("MegaBot AdminCheck module loaded.")
 
 def admin(ctx):
     if ctx.message.author.guild_permissions.administrator or ctx.message.author.id == 253457602908913674:
