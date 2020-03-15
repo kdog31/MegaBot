@@ -60,6 +60,6 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_member_join(member):
-    await member.send("welcome to the server.\n In accordance with the 2019 Data protection act i am required to inform you that i log conversations that occur on this server. if you wish to optout of this you may use the command `@megabot optout`")
+    await member.send("welcome to the server.\nIn accordance with the 2019 Data protection act i am required to inform you that i log conversations that occur on this server. if you wish to optout of this you may use the command `@megabot optout`")
 
 bot.run(token)
