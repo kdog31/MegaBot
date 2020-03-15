@@ -6,7 +6,6 @@ import asyncio
 import re
 from dotenv import load_dotenv
 from datetime import datetime
-version = '0.5.5 Alpha'
 
 load_dotenv()
 logurl = os.getenv('LOG_URL')
@@ -21,7 +20,7 @@ now = datetime.now()
 
 def setup(bot):
     bot.add_cog(logging(bot))
-    print("Logger Version {}.".format(version))
+    print("MegaBot Logging module loaded")
     if logurl == "":
         print("   WARN: Log URL not set, automatic log publishing disabled.")
     if panic_word == "":
@@ -78,6 +77,8 @@ async def listToString(s):
 class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.optouts = {}
+
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -134,3 +135,15 @@ class logging(commands.Cog):
                 await ctx.send("My recordings for the channel '{0}' can be found at {1}/{2}/{0}".format(ctx.channel.name, logurl, ctx.guild.name))
             else:
                 await ctx.send("Public viewing of logs is not enabled. Contact the administrator for more information")
+
+    @commands.command()
+    async def optout(self, ctx):
+        try:
+            if ctx.guild.id in optouts:
+                pass
+            else:
+                optouts[ctx.guild.id] = []
+            optouts[ctx.guild.id].append(ctx.author.id)
+            await ctx.send("{ctx.author}, You have successfully opted out of logging.")
+        except:
+            await ctx.send("{ctx.author}, Unfortunatly and error occured and i was unable to opt you out. Please inform you server administrator.")
