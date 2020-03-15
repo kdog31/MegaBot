@@ -79,7 +79,7 @@ class logging(commands.Cog):
         self.bot = bot
         self.optouts = {}
 
-    async def optcheck(ctx, self):
+    async def optcheck():
         try:
             if ctx.author.id in self.optouts[ctx.guild.id]:
                 return True
@@ -98,7 +98,7 @@ class logging(commands.Cog):
             
             dt_str = now.strftime("%m/%d/%Y-%H:%M:%S")
             
-            if not self.optcheck(ctx):
+            if not self.optcheck():
                 if os.path.exists("logs/{}/{}".format(guild, channel)):
                     open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
                 else:
