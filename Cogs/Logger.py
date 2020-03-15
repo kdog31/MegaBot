@@ -139,7 +139,7 @@ class logging(commands.Cog):
     @commands.command()
     async def optout(self, ctx):
         #try:
-        if not ctx.guild.id in optouts:
+        if not ctx.guild.id in self.optouts:
             self.optouts[ctx.guild.id] = []
             
         optouts[ctx.guild.id].append(ctx.author.id)
