@@ -138,13 +138,13 @@ class logging(commands.Cog):
 
     @commands.command()
     async def optout(self, ctx):
-        try:
-            if ctx.guild.id in optouts:
-                pass
-            else:
-                self.optouts[ctx.guild.id] = []
-            optouts[ctx.guild.id].append(ctx.author.id)
-            await ctx.send("{ctx.author}, You have successfully opted out of logging.")
-        except:
-            await ctx.send("{ctx.author}, Unfortunatly and error occured and i was unable to opt you out. Please inform you server administrator.")
-            raise
+        #try:
+        if ctx.guild.id in optouts:
+            pass
+        else:
+            self.optouts[ctx.guild.id] = []
+        optouts[ctx.guild.id].append(ctx.author.id)
+        await ctx.send("{ctx.author}, You have successfully opted out of logging.")
+        #except:
+            #await ctx.send("{ctx.author}, Unfortunatly and error occured and i was unable to opt you out. Please inform you server administrator.")
+            #raise
