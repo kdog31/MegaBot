@@ -6,7 +6,7 @@ import asyncio
 import re
 from dotenv import load_dotenv
 from datetime import datetime
-version = '0.5.5 Alpha'
+import pickle
 
 load_dotenv()
 logurl = os.getenv('LOG_URL')
@@ -21,7 +21,7 @@ now = datetime.now()
 
 def setup(bot):
     bot.add_cog(logging(bot))
-    print("Logger Version {}.".format(version))
+    print("MegaBot Logging module loaded")
     if logurl == "":
         print("   WARN: Log URL not set, automatic log publishing disabled.")
     if panic_word == "":
@@ -75,9 +75,22 @@ async def listToString(s):
     # return string   
     return (str1.join(s))
 
+async def optcheck(self, ctx):
+    try:
+        if ctx.author.id in self.optouts[ctx.guild.id]:
+            return True
+        else:
+            return False
+    except KeyError:
+        return False
+
 class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.optouts = {}
+        if os.path.exists('optouts/optouts.pickle'):
+            with open('optouts/optouts.pickle', 'rb') as handle:
+                self.optouts = pickle.load(handle)
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -89,18 +102,25 @@ class logging(commands.Cog):
             
             dt_str = now.strftime("%m/%d/%Y-%H:%M:%S")
             
-            if os.path.exists("logs/{}/{}".format(guild, channel)):
-                open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
-            else:
-                os.makedirs("logs/{}/{}".format(guild, channel))
-                open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
+            if not await optcheck(self, ctx):
+                if os.path.exists("logs/{}/{}".format(guild, channel)):
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
+                else:
+                    os.makedirs("logs/{}/{}".format(guild, channel))
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
 
-            if ctx.attachments:
-                if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
-                    os.makedirs("logs/{}/{}/images".format(guild, channel))
-                
-                dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
-                await run("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
+                if ctx.attachments:
+                    if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
+                        os.makedirs("logs/{}/{}/images".format(guild, channel))
+                    
+                    dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
+                    await run("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
+            else:
+                if os.path.exists("logs/{}/{}".format(guild, channel)):
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write("An opted out user sent a message. \n")
+                else:
+                    os.makedirs("logs/{}/{}".format(guild, channel))
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write("An opted out user sent a message. \n")
             
             if panic_word != "":
                 if panic_word in message and ctx.author.bot == False:
@@ -134,3 +154,35 @@ class logging(commands.Cog):
                 await ctx.send("My recordings for the channel '{0}' can be found at {1}/{2}/{0}".format(ctx.channel.name, logurl, ctx.guild.name))
             else:
                 await ctx.send("Public viewing of logs is not enabled. Contact the administrator for more information")
+
+    @commands.command()
+    async def optout(self, ctx):
+        try:    
+            print("optout triggered")
+            print(ctx.guild.id)
+            if ctx.guild.id not in self.optouts:
+                self.optouts[ctx.guild.id] = []
+            print(self.optouts)
+            self.optouts[ctx.guild.id].append(ctx.author.id)
+            print(self.optouts)
+            await ctx.send("You have successfully opted out")
+            with open('optouts/optouts.pickle', 'wb') as handle:
+                pickle.dump(self.optouts, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            await ctx.send("There was an error opting out. please try again later. \n Here is the exception details\n ```{}```".format(e))
+
+    @commands.command()
+    async def optin(self, ctx):
+        try:
+            if ctx.guild.id in self.optouts:
+                if ctx.author.id in self.optouts[ctx.guild.id]:
+                    self.optouts[ctx.guild.id].remove(ctx.author.id)
+                    await ctx.send("You have successfully opted back in.")
+                    with open('optouts/optouts.pickle', 'wb') as handle:
+                        pickle.dump(self.optouts, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                else:
+                    await ctx.send("You were never opted out on this server.")
+            else:
+                await ctx.send("You were never opted out on this server.")
+        except Exception as e:
+            await ctx.send("There was an error opting in. please try again later. \n Here is the exception details\n ```{}```".format(e))

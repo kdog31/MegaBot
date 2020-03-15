@@ -3,18 +3,17 @@ from discord.ext import commands
 from Cogs import AdminCheck
 from mcstatus import MinecraftServer
 import os
-version = '1.0'
 
 client = discord.Client()
 def setup(bot):
     bot.add_cog(mcstatus(bot))
-    print("mcstatus Version {}.".format(version))
+    print("MegaBot Minecraft module loaded")
 
 
 class mcstatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.servers = ["mc1.kainentechtips.com:25565"]
+        self.servers = ["survival.hal9k.dev", "creative.hal9k.dev"]
         self.message = ""
 
     @commands.command()

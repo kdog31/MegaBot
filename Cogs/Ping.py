@@ -2,12 +2,11 @@ import discord
 from discord.ext import commands
 from Cogs import AdminCheck
 import os, datetime, time
-version = '1.0'
 
 client = discord.Client()
 def setup(bot):
     bot.add_cog(ping(bot))
-    print("Ping Version {}.".format(version))
+    print("MegaBot ping module loaded")
 
 
 class ping(commands.Cog):

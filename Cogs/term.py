@@ -4,12 +4,11 @@ from Cogs import AdminCheck
 import os, datetime, time
 from Cogs import AdminCheck
 import asyncio
-version = '1.0'
 
 client = discord.Client()
 def setup(bot):
     bot.add_cog(megaterm(bot))
-    print("MegaTerm Version {}.".format(version))
+    print("MegaBot Terminal module loaded")
 
 async def run(cmd):
     proc = await asyncio.create_subprocess_shell(

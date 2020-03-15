@@ -2,12 +2,11 @@ import discord
 from discord.ext import commands
 from Cogs import AdminCheck
 import os
-version = '0.1 Alpha'
 
 client = discord.Client()
 def setup(bot):
     bot.add_cog(quit(bot))
-    print("Exit Version {}.".format(version))
+    print("MegaBot Exit module loaded.")
 
 
 class quit(commands.Cog):
