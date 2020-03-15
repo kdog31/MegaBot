@@ -147,3 +147,4 @@ class logging(commands.Cog):
             await ctx.send("{ctx.author}, You have successfully opted out of logging.")
         except:
             await ctx.send("{ctx.author}, Unfortunatly and error occured and i was unable to opt you out. Please inform you server administrator.")
+            raise
