@@ -79,6 +79,14 @@ class logging(commands.Cog):
         self.bot = bot
         self.optouts = {}
 
+    async def optcheck(self, ctx):
+        try:
+            if ctx.author.id in self.optouts[ctx.guild.id]:
+                return True
+            else:
+                return False
+        except KeyError:
+            return False
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -90,18 +98,19 @@ class logging(commands.Cog):
             
             dt_str = now.strftime("%m/%d/%Y-%H:%M:%S")
             
-            if os.path.exists("logs/{}/{}".format(guild, channel)):
-                open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
-            else:
-                os.makedirs("logs/{}/{}".format(guild, channel))
-                open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
+            if not self.optcheck(self, ctx):
+                if os.path.exists("logs/{}/{}".format(guild, channel)):
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
+                else:
+                    os.makedirs("logs/{}/{}".format(guild, channel))
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write(dt_str + ":" + user + ":" + message + "\n")
 
-            if ctx.attachments:
-                if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
-                    os.makedirs("logs/{}/{}/images".format(guild, channel))
-                
-                dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
-                await run("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
+                if ctx.attachments:
+                    if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
+                        os.makedirs("logs/{}/{}/images".format(guild, channel))
+                    
+                    dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
+                    await run("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
             
             if panic_word != "":
                 if panic_word in message and ctx.author.bot == False:
