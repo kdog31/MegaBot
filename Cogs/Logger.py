@@ -140,4 +140,4 @@ class logging(commands.Cog):
     async def optout(self, ctx):
         print("optout triggered")
         print(ctx.guild.id)
-        print(optouts)
+        print(self.optouts)
