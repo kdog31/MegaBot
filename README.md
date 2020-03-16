@@ -26,6 +26,8 @@ BOT_NAME=YOUR_BOT_NAME
 LOG_URL=https://logs.somewebsite.com
 PANIC_WORD=PANIC
 PANIC_LOG_LEN=50
+SUPER_ADMIN=
+MC_SERVERS=
 ```
 Alternatively you can include your environment variables in the docker-compose.yml file. This can be helpful if you are using a Docker frontend, such as Portainer.
 ```
@@ -43,6 +45,8 @@ services:
             - LOG_URL=https://logs.somewebsite.com
             - PANIC_WORD=PANIC
             - PANIC_LOG_LEN=50
+            - SUPER_ADMIN=
+            - MC_SERVERS=
         restart: always
         tty: true
 ```
@@ -72,3 +76,11 @@ This is the word that MegaBot will look for in chat to create a panic log, anybo
 PANIC_LOG_LEN=
 ```
 This defines the number of messages the panic log should contain. This can be as high as you would like in theory, however larger numbers slow down the creation of the panic log. has been tested working with 200 messages. If undefined this variable defaults to 50.
+```
+SUPER_ADMIN=
+```
+This is a space separated list of users who will be considered administrators over the bot, even if they do not have the administrator role. This is an optional list and not required.
+```
+MC_SERVERS=
+```
+This is a space separated list of Minecraft servers for the mstatus cog to monitor. This is an optional list and not required.
