@@ -25,4 +25,4 @@ class ping(commands.Cog):
         await ctx.send("Pong {}".format(t))
     @commands.command()
     async def source(self, ctx):
-        await ctx.send("Source Code is avalable at https://github.com/kdog31/MegaBot")
+        await ctx.send("Source Code is available at https://github.com/kdog31/MegaBot")

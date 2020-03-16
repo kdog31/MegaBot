@@ -3,6 +3,8 @@ from discord.ext import commands
 from Cogs import AdminCheck
 from mcstatus import MinecraftServer
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 client = discord.Client()
 def setup(bot):
@@ -13,7 +15,7 @@ def setup(bot):
 class mcstatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.servers = ["survival.hal9k.dev", "creative.hal9k.dev"]
+        self.servers = os.getenv('MC_SERVERS').split(" ")
         self.message = ""
 
     @commands.command()
