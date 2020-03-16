@@ -1,12 +1,16 @@
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
+import os
+load_dotenv()
+superadmin = [os.getenv('SUPER_ADMIN').split(" ")]
 
 def setup(bot):
     bot.add_cog(whoami(bot))
     print("MegaBot AdminCheck module loaded.")
 
 def admin(ctx):
-    if ctx.message.author.guild_permissions.administrator or ctx.message.author.id == 253457602908913674:
+    if ctx.message.author.guild_permissions.administrator or ctx.message.author.id in superadmin:
         return True
     elif not ctx.message.author.guild_permissions.administrator:
         return False
