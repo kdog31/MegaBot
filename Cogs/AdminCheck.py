@@ -21,7 +21,7 @@ class whoami(commands.Cog):
 
     @commands.command()
     async def whoami(self, ctx):
-        if ctx.message.author.guild_permissions.administrator:
+        if admin(ctx):
             await ctx.send("You are {}, you are and admin.".format(ctx.message.author.name))
         else:
             await ctx.send("You are {}.".format(ctx.message.author.name))
