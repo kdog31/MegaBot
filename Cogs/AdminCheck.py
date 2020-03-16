@@ -16,6 +16,12 @@ def admin(ctx):
     elif not ctx.message.author.guild_permissions.administrator:
         return False
 
+def sudo(ctx):
+    if str(ctx.message.author.id) in superadmin:
+        return True
+    else:
+        return False
+
 class whoami(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
