@@ -27,7 +27,7 @@ class megaterm(commands.Cog):
 
     @commands.command()
     async def termstart(self, ctx):
-        if ctx.message.author.id == 253457602908913674:
+        if AdminCheck.sudo(ctx):
             if self.active == False:
                 self.author = ctx.author
                 self.active = True
@@ -37,7 +37,7 @@ class megaterm(commands.Cog):
 
     @commands.command()
     async def termstop(self, ctx):
-        if ctx.message.author.id == 253457602908913674:
+        if AdminCheck.sudo(ctx):
             if self.active == True:
                 self.author = None
                 self.active = False
