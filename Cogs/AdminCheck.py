@@ -8,6 +8,7 @@ superadmin = [os.getenv('SUPER_ADMIN').split(" ")]
 def setup(bot):
     bot.add_cog(whoami(bot))
     print("MegaBot AdminCheck module loaded.")
+    print("    SuperAdmins: {}".format(superadmin))
 
 def admin(ctx):
     if ctx.message.author.guild_permissions.administrator or ctx.message.author.id in superadmin:
