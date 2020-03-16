@@ -3,7 +3,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 load_dotenv()
-superadmin = [os.getenv('SUPER_ADMIN').split(" ")]
+superadmin = os.getenv('SUPER_ADMIN').split(" ")
 
 def setup(bot):
     bot.add_cog(whoami(bot))
