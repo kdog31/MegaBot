@@ -11,7 +11,7 @@ def setup(bot):
     print("    SuperAdmins: {}".format(superadmin))
 
 def admin(ctx):
-    if ctx.message.author.guild_permissions.administrator or ctx.message.author.id in superadmin:
+    if ctx.message.author.guild_permissions.administrator or str(ctx.message.author.id) in superadmin:
         return True
     elif not ctx.message.author.guild_permissions.administrator:
         return False
