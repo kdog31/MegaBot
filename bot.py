@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term
+from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term, Settings
 import os
 import time
 import asyncio
@@ -35,6 +35,7 @@ client = discord.Client()
 bot = commands.Bot(command_prefix="<@!{}> ".format(botid))
 
 
+Settings.setup(bot)
 AdminCheck.setup(bot)
 Exit.setup(bot)
 Logger.setup(bot)
