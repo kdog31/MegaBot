@@ -1,2 +1,4 @@
 Cogs/__pycache__/
 .env
+optouts/*.pickle
+logs/
