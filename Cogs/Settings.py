@@ -31,7 +31,3 @@ class setting(commands.Cog):
         with open('optouts/settings.pickle', 'wb') as handle:
             pickle.dump(settings, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    @commands.command()
-    async def currentsettings(self, ctx):
-        await ctx.send("```{}```".format(settings[ctx.guild.id]))
-
