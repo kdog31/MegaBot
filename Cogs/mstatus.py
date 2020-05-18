@@ -35,27 +35,29 @@ class mcstatus(commands.Cog):
     
     @commands.command()
     async def mcadd(self, ctx):
-        i = ctx.message.content.split(' ')
-        if len(i) == 3:
-            settings = await Settings.setting.load()
-            if 'Minecraft' not in settings[ctx.guild.id]:
-                settings[ctx.guild.id]['Minecraft'] = []
-            if i[2] not in settings[ctx.guild.id]['Minecraft']:
-                settings[ctx.guild.id]['Minecraft'].append(i[2])
-                await Settings.setting.save(settings)
-                await ctx.send("Minecraft server {} added.".format(i[2]))
-            else:
-                await ctx.send('The server {} already exists'.format(i[2]))
+        if AdminCheck(ctx):
+            i = ctx.message.content.split(' ')
+            if len(i) == 3:
+                settings = await Settings.setting.load()
+                if 'Minecraft' not in settings[ctx.guild.id]:
+                    settings[ctx.guild.id]['Minecraft'] = []
+                if i[2] not in settings[ctx.guild.id]['Minecraft']:
+                    settings[ctx.guild.id]['Minecraft'].append(i[2])
+                    await Settings.setting.save(settings)
+                    await ctx.send("Minecraft server {} added.".format(i[2]))
+                else:
+                    await ctx.send('The server {} already exists'.format(i[2]))
 
     @commands.command()
     async def mcrm(self, ctx):
-        i = ctx.message.content.split(' ')
-        if len(i) == 3:
-            settings = await Settings.setting.load()
-            if i[2] in settings[ctx.guild.id]['Minecraft']:
-                settings[ctx.guild.id]['Minecraft'].remove(i[2])
-                print(settings)
-                await Settings.setting.save(settings)
-                await ctx.send("Minecraft server {} removed.".format(i[2]))
+        if AdminCheck(ctx):
+            i = ctx.message.content.split(' ')
+            if len(i) == 3:
+                settings = await Settings.setting.load()
+                if i[2] in settings[ctx.guild.id]['Minecraft']:
+                    settings[ctx.guild.id]['Minecraft'].remove(i[2])
+                    print(settings)
+                    await Settings.setting.save(settings)
+                    await ctx.send("Minecraft server {} removed.".format(i[2]))
 
 
