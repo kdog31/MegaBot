@@ -35,7 +35,7 @@ class mcstatus(commands.Cog):
     
     @commands.command()
     async def mcadd(self, ctx):
-        if AdminCheck(ctx):
+        if AdminCheck.admin(ctx):
             i = ctx.message.content.split(' ')
             if len(i) == 3:
                 settings = await Settings.setting.load()
@@ -50,7 +50,7 @@ class mcstatus(commands.Cog):
 
     @commands.command()
     async def mcrm(self, ctx):
-        if AdminCheck(ctx):
+        if AdminCheck.admin(ctx):
             i = ctx.message.content.split(' ')
             if len(i) == 3:
                 settings = await Settings.setting.load()
