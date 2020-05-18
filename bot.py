@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term
+from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term, Settings
 import os
 import time
 import asyncio
@@ -35,6 +35,7 @@ client = discord.Client()
 bot = commands.Bot(command_prefix="<@!{}> ".format(botid))
 
 
+Settings.setup(bot)
 AdminCheck.setup(bot)
 Exit.setup(bot)
 Logger.setup(bot)
@@ -51,6 +52,7 @@ async def on_ready():
         count += len(s.members)
     print('\n{} active in {} servers with {} users.'.format(bname, len(bot.guilds), count))
     await bot.change_presence(activity=discord.Game(name="System Ready."))
+    await Settings.setting.initialize(bot)
     await RichPresence.main(bot)
 
 @bot.event
@@ -60,6 +62,9 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_member_join(member):
-    await member.send("welcome to the server.\nIn accordance with the 2019 Data protection act i am required to inform you that i log conversations that occur on this server. if you wish to optout of this you may use the command `@megabot optout`")
+    try:
+        await member.send("welcome to the server.\nIn accordance with the 2019 Data protection act i am required to inform you that i log conversations that occur on this server. if you wish to optout of this you may use the command `@megabot optout`")
+    except discord.Forbidden as e:
+        pass
 
 bot.run(token)
