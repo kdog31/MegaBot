@@ -192,5 +192,5 @@ class logging(commands.Cog):
         counter = 0
         #async for message in ctx.history(limit=limit):
         messages = await ctx.channel.history(limit=limit).flatten()
-        print(messages)
+        print(messages.content)
         await ctx.send("check the logs!")
