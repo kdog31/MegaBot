@@ -188,7 +188,7 @@ class logging(commands.Cog):
             await ctx.send("There was an error opting in. please try again later. \n Here is the exception details\n ```{}```".format(e))
 
     @commands.command()
-    async def createlogs(self, ctx, limit: int=10):
+    async def createlogs(self, ctx, limit: int=1):
         counter = 0
         #async for message in ctx.history(limit=limit):
         messages = await ctx.channel.history(limit=limit).flatten()
