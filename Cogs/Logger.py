@@ -191,4 +191,5 @@ class logging(commands.Cog):
     async def createlogs(self, ctx):
         print(ctx)
         messages = await ctx.history(limit=10).flatten()
+        print(messages)
         await ctx.send(messages)
