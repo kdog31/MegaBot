@@ -189,5 +189,5 @@ class logging(commands.Cog):
 
     @commands.command()
     async def createlog(self, ctx, length=10):
-        messages = await channel.history(limit=length).flatten()
+        messages = await ctx.history(limit=length).flatten()
         await ctx.send(messages)
