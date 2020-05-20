@@ -186,3 +186,8 @@ class logging(commands.Cog):
                 await ctx.send("You were never opted out on this server.")
         except Exception as e:
             await ctx.send("There was an error opting in. please try again later. \n Here is the exception details\n ```{}```".format(e))
+
+    @commands.command()
+    async def createlog(self, ctx, length=10):
+        messages = await channel.history(limit=length).flatten()
+        await ctx.send(messages)
