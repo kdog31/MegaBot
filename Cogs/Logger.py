@@ -189,8 +189,6 @@ class logging(commands.Cog):
 
     @commands.command()
     async def createlogs(self, ctx, limit: int=10):
-        counter = 0
-        #async for message in ctx.history(limit=limit):
         for message in ctx.channel.history(limit=limit):
-            print(message.content())
+            print(message.content)
         await ctx.send("check the logs!")
