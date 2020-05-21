@@ -71,7 +71,7 @@ app.add_routes([web.get('/', landing),
 async def APIstart(bot):
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '192.168.1.91', port)
+    site = web.TCPSite(runner, None, port)
     try:
         await site.start()
         print("API started on port {}".format(port))
