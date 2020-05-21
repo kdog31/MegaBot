@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term, Settings
+from Cogs import AdminCheck, Exit, Logger, RichPresence, Ping, mstatus, term, Settings, API
 import os
 import time
 import asyncio
@@ -43,6 +43,7 @@ RichPresence.setup(bot)
 Ping.setup(bot)
 mstatus.setup(bot)
 term.setup(bot)
+API.setup(bot)
 
 @bot.event
 async def on_ready():
@@ -53,6 +54,7 @@ async def on_ready():
     print('\n{} active in {} servers with {} users.'.format(bname, len(bot.guilds), count))
     await bot.change_presence(activity=discord.Game(name="System Ready."))
     await Settings.setting.initialize(bot)
+    await API.APIstart(bot)
     await RichPresence.main(bot)
 
 @bot.event
