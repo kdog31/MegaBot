@@ -19,6 +19,12 @@ def setup(bot):
 async def handle(request):
     server = request.match_info.get('server')
     rchannel = request.match_info.get('channel')
+    query = request.query
+    #print(query['len'])
+    if not query['len']:
+        length = 10
+    else:
+        length = int(query['len'])
     #text = "hello, {}".format(server)
     if server == None:
         a = []
@@ -46,7 +52,7 @@ async def handle(request):
                         #return web.Response(text="YEA")
                         a = []
                         try:
-                            async for message in channel.history(limit=10):
+                            async for message in channel.history(limit=int(length)):
                                 a.append(message.content)
                             return web.Response(text=str(a))
                         except AttributeError:
