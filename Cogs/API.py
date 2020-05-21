@@ -21,7 +21,7 @@ async def handle(request):
     rchannel = request.match_info.get('channel')
     query = request.query
     #print(query['len'])
-    if not query['len']:
+    if not "len" in query:
         length = 10
     else:
         length = int(query['len'])
