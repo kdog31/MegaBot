@@ -115,7 +115,6 @@ class logging(commands.Cog):
                     
                     dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
                     await run("curl --create-dirs {} -o {}".format(ctx.attachments[0].url, dlpath))
-                    print ("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
             else:
                 if os.path.exists("logs/{}/{}".format(guild, channel)):
                     open("logs/{}/{}/chat.log".format(guild, channel), "a").write("An opted out user sent a message. \n")
