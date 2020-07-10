@@ -100,7 +100,7 @@ class logging(commands.Cog):
             guild = ctx.guild.name
             user = ctx.author.name
             
-            dt_str = now.strftime("%m/%d/%Y-%H:%M:%S")
+            dt_str = now.strftime("%Y/%m/%d/%H:%M:%S")
             
             if not await optcheck(self, ctx):
                 if os.path.exists("logs/{}/{}".format(guild, channel)):
@@ -114,7 +114,7 @@ class logging(commands.Cog):
                         os.makedirs("logs/{}/{}/images".format(guild, channel))
                     
                     dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
-                    await run("curl {} -o {}".format(ctx.attachments[0].url, dlpath))
+                    await run("curl --create-dirs {} -o {}".format(ctx.attachments[0].url, dlpath))
             else:
                 if os.path.exists("logs/{}/{}".format(guild, channel)):
                     open("logs/{}/{}/chat.log".format(guild, channel), "a").write("An opted out user sent a message. \n")
