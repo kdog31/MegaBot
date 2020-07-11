@@ -113,7 +113,7 @@ class logging(commands.Cog):
                     if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
                         os.makedirs("logs/{}/{}/images".format(guild, channel))
                     
-                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write("\tattachment stored at logs/{}/{}/images/{}-{}\n".format(guild, channel, dt_str, ctx.attachments[0].filename))
+                    open("logs/{}/{}/chat.log".format(guild, channel), "a").write("\tattachment stored at https://logs.hal9k.dev/{}/{}/images/{}-{}\n".format(guild, channel, dt_str, ctx.attachments[0].filename))
                     dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, ctx.attachments[0].filename)
                     await run("curl --create-dirs {} -o {}".format(ctx.attachments[0].url, dlpath))
                 await run("chown -R 33:33 logs")
