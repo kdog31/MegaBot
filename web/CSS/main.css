@@ -10,3 +10,10 @@
     position: relative;
     text-align: center;
 }
+#content {
+    position: relative;
+    text-align: center;
+}
+input[type=number]{
+    width: 50px;
+}

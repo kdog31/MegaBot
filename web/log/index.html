@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <title>MegaBot - Logs</title>
+        <link rel="stylesheet" href="CSS/main.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="JS/logs.js"></script>
+    </head>
+    <body>
+        <div id="title">
+            <h1>MegaBot</h1>
+            <h3>Logs</h3>
+        </div>
+        <div id="inputs">
+            <select id="server">
+                <option value="Select server">Select a server</option>
+            </select><br>
+            <select id="channel">
+                <option value="Select Channel">Select a Channel</option>
+            </select>
+            <br>
+            Number of messages to display: <input type="number" id="quantity" min="10" max="100" step="10" value="30">
+        </div>
+        <table id="messages">
+        </table>
+    </body>
+</html>

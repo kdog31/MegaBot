@@ -85,16 +85,20 @@ async def css(request):
         return web.HTTPNotFound()
 
 async def js(request):
-    stylesheet = request.match_info.get('stylesheet')
-    if os.path.exists('./web/JS/{}'.format(stylesheet)):
-        return web.FileResponse('./web/JS/{}'.format(stylesheet))
+    javascript = request.match_info.get('script')
+    if os.path.exists('./web/JS/{}'.format(javascript)):
+        return web.FileResponse('./web/JS/{}'.format(javascript))
     else:
         return web.HTTPNotFound()
+
+async def logs(request):
+    return web.FileResponse('./web/log/index.html')
 
 app = web.Application()
 app.add_routes([web.get('/', landing),
                 web.get('/CSS/{stylesheet}', css),
                 web.get('/JS/{script}', js),
+                web.get('/log', logs),
                 web.get('/api/stats', stats),
                 web.get('/api/servers', handle),
                 web.get('/api/servers/{server}', handle),
