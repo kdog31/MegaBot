@@ -92,13 +92,13 @@ async def js(request):
         return web.HTTPNotFound()
 
 async def logs(request):
-    return web.FileResponse('./web/logs/index.html')
+    return web.FileResponse('./web/log/index.html')
 
 app = web.Application()
 app.add_routes([web.get('/', landing),
                 web.get('/CSS/{stylesheet}', css),
                 web.get('/JS/{script}', js),
-                web.get('/logs', logs),
+                web.get('/log', logs),
                 web.get('/api/stats', stats),
                 web.get('/api/servers', handle),
                 web.get('/api/servers/{server}', handle),
