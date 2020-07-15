@@ -35,12 +35,12 @@ function getChannels(server) {
 }
 function getMessages() {
     url = "/api/servers/" + document.getElementById("server").value + "/" + document.getElementById("channel").value + "?len=" + document.getElementById("quantity").value
-    console.log(url)
+    //console.log(url)
     $.getJSON(url, function(data) {
         $.each(data, function(key, val) {
             //console.log(key, val)
             for (key1 of Object.keys(val)) {
-                console.log(key1, val[key1]['author']['author_displayname'], val[key1]['content'])
+                //console.log(key1, val[key1]['author']['author_displayname'], val[key1]['content'])
                 var x = document.getElementById("messages")
                 var y = document.createElement("tr");
                 y.setAttribute("id", key1)
@@ -50,6 +50,14 @@ function getMessages() {
                 z.appendChild(t)
                 var t = document.createTextNode(val[key1]['content'])
                 z.appendChild(t)
+                for (key2 of Object.keys(val[key1]['attachments'])) {
+                    //console.log(val[key1]['attachments'][key2]['url'])
+                    var img = document.createElement("img")
+                    img.src = val[key1]['attachments'][key2]['url']
+                    var br = document.createElement("br")
+                    z.appendChild(br)
+                    z.appendChild(img)
+                }
                 document.getElementById("messages").appendChild(z)
             }
         })
