@@ -116,7 +116,10 @@ class logging(commands.Cog):
                 self.log[guild][channel] = {}
             if not message.id in self.log[guild][channel].keys():
                 self.log[guild][channel][ctx.id] = {}
-                self.log[guild][channel][ctx.id]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
+                if not await optcheck(self, ctx):
+                    self.log[guild][channel][ctx.id]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
+                else:
+                    self.log[guild][channel][ctx.id]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
                 self.log[guild][channel][ctx.id]["content"] = ctx.content
                 self.log[guild][channel][ctx.id]["attachments"] = {}
                 if ctx.attachments:
