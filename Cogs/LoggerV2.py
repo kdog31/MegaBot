@@ -125,6 +125,7 @@ class logging(commands.Cog):
                     for attachment in ctx.attachments:
                         dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, attachment.filename)
                         await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
+                        await run("chmod 777 {}".format(dlpath))
                         b = {'filename': attachment.filename, 'url': "https://logs.hal9k.dev/{}/{}/images/{}-{}".format(guild, channel, dt_str, attachment.filename)}
                         self.log[guild][channel][ctx.id]["attachments"][attachment.id] = b
             #print(self.log)
