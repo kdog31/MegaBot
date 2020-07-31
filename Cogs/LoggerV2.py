@@ -61,10 +61,19 @@ async def generateLog(self, ctx):
         print("logged messages set to 0")
         async for message in ctx.channel.history(limit=None, oldest_first=True):
             print("begin iteration")
-            if message.author.id in self.optouts[ctx.guild.id]:
-                a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'attachments': {}}
+            print(self.optouts)
+            print(message.author.id)
+            if ctx.guild.id in self.optouts:
+                if message.author.id in self.optouts[ctx.guild.id]:
+                    print("opted out")
+                    a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'attachments': {}}
+                else:
+                    print("not opted out")
+                    a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'attachments': {}}
             else:
+                print("not opted out")
                 a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'attachments': {}}
+            print("author set to {}".format(a))
             if message.attachments:
                 for attachment in message.attachments:
                     dt_str = str(message.created_at.date()) + "/" + str(message.created_at.time())
