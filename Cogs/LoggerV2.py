@@ -69,6 +69,7 @@ async def generateLog(self, ctx):
                     a["attachments"][attachment.id] = b
             self.log[ctx.guild.id][ctx.channel.id][message.id] = a
             loggedmessages += 1
+            print("Logged messages {}".format(loggedmessages))
             
         with open('logs/log.json', 'w') as outfile:
             json.dump(self.log, outfile)
@@ -92,6 +93,8 @@ class logging(commands.Cog):
         if os.path.exists('logs/log.json'):
             with open('logs/log.json', 'rb') as json_data:
                 self.log = json.load(json_data)
+            with open('logs/log.json', 'w') as outfile:
+                json.dump(self.log, outfile)
         if not os.path.exists('logs'):
             os.makedirs('logs')
 
@@ -127,7 +130,6 @@ class logging(commands.Cog):
                             await run("chmod -R 777 logs")
                             b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
                             self.log[guild][channel][ctx.id]["attachments"][attachment.id] = b
-                #print(self.log)
                 with open('logs/log.json', 'w') as outfile:
                     json.dump(self.log, outfile)
             else:
