@@ -51,10 +51,14 @@ async def generateLog(self, ctx):
         self.logging = True
         print("Generating logs for channel {} in server {}".format(ctx.channel.id, ctx.guild.id))
         await ctx.send("Generating log, this may take a minute...")
+        print(self.log)
         if ctx.guild.id not in self.log:
             self.log[ctx.guild.id] = {}
+            print("channel id created")
         self.log[ctx.guild.id][ctx.channel.id] = {}
+        print("channel id set to empty dict")
         loggedmessages = 0
+        print("logged messages set to 0")
         async for message in ctx.channel.history(limit=None, oldest_first=True):
             if message.author.id in self.optouts[ctx.guild.id]:
                 a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'attachments': {}}
