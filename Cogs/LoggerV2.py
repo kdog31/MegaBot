@@ -51,29 +51,29 @@ async def generateLog(self, ctx):
         self.logging = True
         print("Generating logs for channel {} in server {}".format(ctx.channel.id, ctx.guild.id))
         await ctx.send("Generating log, this may take a minute...")
-        print(self.log)
+        #print(self.log)
         if ctx.guild.id not in self.log:
             self.log[ctx.guild.id] = {}
             print("channel id created")
         self.log[ctx.guild.id][ctx.channel.id] = {}
-        print("channel id set to empty dict")
+        #print("channel id set to empty dict")
         loggedmessages = 0
-        print("logged messages set to 0")
+        #print("logged messages set to 0")
         async for message in ctx.channel.history(limit=None, oldest_first=True):
-            print("begin iteration")
-            print(self.optouts)
-            print(message.author.id)
+            #print("begin iteration")
+            #print(self.optouts)
+            #print(message.author.id)
             if ctx.guild.id in self.optouts:
                 if message.author.id in self.optouts[ctx.guild.id]:
-                    print("opted out")
+                    #print("opted out")
                     a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'attachments': {}}
                 else:
-                    print("not opted out")
+                    #print("not opted out")
                     a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'attachments': {}}
             else:
-                print("not opted out")
+                #print("not opted out")
                 a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'attachments': {}}
-            print("author set to {}".format(a))
+            #print("author set to {}".format(a))
             if message.attachments:
                 for attachment in message.attachments:
                     dt_str = str(message.created_at.date()) + "/" + str(message.created_at.time())
@@ -84,7 +84,7 @@ async def generateLog(self, ctx):
                     a["attachments"][attachment.id] = b
             self.log[ctx.guild.id][ctx.channel.id][message.id] = a
             loggedmessages += 1
-            print("Logged messages {}".format(loggedmessages))
+            print("Logged {} message(s)".format(loggedmessages))
             
         with open('logs/log.json', 'w') as outfile:
             json.dump(self.log, outfile)
