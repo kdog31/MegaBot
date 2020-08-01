@@ -224,10 +224,9 @@ class logging(commands.Cog):
     
     @commands.command()
     async def makelog(self, ctx):
-        print("a")
-        print(ctx.message.channel_mentions)
         if ctx.message.channel_mentions:
-            await generateLog(self, ctx, ctx.message.channel_mentions[0])
+            for i in ctx.message.channel_mentions:
+                await generateLog(self, ctx, ctx.message.channel_mentions[i])
         else:
             await generateLog(self, ctx)
 
