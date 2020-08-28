@@ -90,7 +90,7 @@ async def generateLog(self, ctx, mentions=None, after=None):
         self.lastlogged[str(ctx.guild.id)][str(mentions.id)] = message.id
         loggedmessages += 1
         print("Logged {} message(s)".format(loggedmessages))
-        if loggedmessages % 1000 == 0:
+        if loggedmessages % 100000 == 0:
             with open('logs/log.json', 'w') as outfile:
                 json.dump(self.log, outfile)
                 print("log dumped")
@@ -217,37 +217,50 @@ class logging(commands.Cog):
                                 after = None
                         else:
                             after = None
-                        async for message in channel.history(limit=None, oldest_first=True, after=after):
-                            if i.id in self.optouts:
-                                if message.author.id in self.optouts[i.id]:
-                                    a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                        print("Catching up on messages in channel {} in server {}.".format(channel.name, i.name))
+                        try:
+                            async for message in channel.history(limit=None, oldest_first=True, after=after):
+                                if i.id in self.optouts:
+                                    if message.author.id in self.optouts[i.id]:
+                                        a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                                    else:
+                                        a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
                                 else:
                                     a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
-                            else:
-                                a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
-                            if message.attachments:
-                                for attachment in message.attachments:
-                                    dt_str = str(message.created_at.date()) + "/" + str(message.created_at.time())
-                                    dlpath = "logs/{}/{}/images/{}-{}".format(i.id, channel.id, dt_str, attachment.filename)
-                                    if not os.path.exists(dlpath):
-                                        await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
-                                        await run("chmod -R 777 logs")
-                                    else:
-                                        print("file already exists in local cache")
-                                    b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, i.id, channel.id, dt_str, attachment.filename)}
-                                    a["attachments"][attachment.id] = b
-                            self.log[i.id][channel.id][message.id] = a
-                            self.lastlogged[str(i.id)][str(channel.id)] = message.id
-                            if n % 100 == 0:
+                                if message.attachments:
+                                    for attachment in message.attachments:
+                                        dt_str = str(message.created_at.date()) + "/" + str(message.created_at.time())
+                                        dlpath = "logs/{}/{}/images/{}-{}".format(i.id, channel.id, dt_str, attachment.filename)
+                                        if not os.path.exists(dlpath):
+                                            await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
+                                            await run("chmod -R 777 logs")
+                                        else:
+                                            print("file already exists in local cache")
+                                        b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, i.id, channel.id, dt_str, attachment.filename)}
+                                        a["attachments"][attachment.id] = b
+                                self.log[i.id][channel.id][message.id] = a
+                                self.lastlogged[str(i.id)][str(channel.id)] = message.id
+                                n += 1
+                                print("logged {} messages from channel {} in server {}".format(n, channel.name, i.name))
+                                if n % 10000 == 0:
+                                    with open('optouts/lastlogged.json', 'w') as outfile:
+                                        json.dump(self.lastlogged, outfile)
+                                    with open('logs/log.json', 'w') as outfile:
+                                        json.dump(self.log, outfile)
+                            if n > 0:
                                 with open('optouts/lastlogged.json', 'w') as outfile:
                                     json.dump(self.lastlogged, outfile)
                                 with open('logs/log.json', 'w') as outfile:
                                     json.dump(self.log, outfile)
-            with open('optouts/lastlogged.json', 'w') as outfile:
-                json.dump(self.lastlogged, outfile)
-            with open('logs/log.json', 'w') as outfile:
-                json.dump(self.log, outfile)
-            print("Logs updated")
+                            print("Logs updated")
+                        except discord.errors.Forbidden:
+                            print("forbidden error")
+            #with open('optouts/lastlogged.json', 'w') as outfile:
+            #    json.dump(self.lastlogged, outfile)
+            #with open('logs/log.json', 'w') as outfile:
+            #    json.dump(self.log, outfile)
+            #print("Logs updated")
+        print("Catchup complete")
 
 
 
