@@ -104,6 +104,7 @@ app.add_routes([web.get('/', landing),
                 web.get('/api/servers/{server}', handle),
                 web.get('/api/servers/{server}/{channel}', handle)])
 
+
 async def APIstart(bot):
     runner = web.AppRunner(app)
     await runner.setup()
@@ -113,6 +114,8 @@ async def APIstart(bot):
         print("API started on port {}".format(port))
     except PermissionError:
         print("Unable to start API, check ports and try again")
+    except OSError:
+        pass
 
 class API(commands.Cog):
     def __init__(self, bot):
