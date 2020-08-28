@@ -56,7 +56,7 @@ async def logcheck(self, ctx):
     except KeyError:
         return False
 
-async def generateLog(self, ctx, mentions=None):
+async def generateLog(self, ctx, mentions=None, after=None):
     loggedmessages = 0
     self.logging = mentions.id
     print("Generating logs for channel {} in server {}".format(mentions.id, ctx.guild.id))
@@ -64,7 +64,10 @@ async def generateLog(self, ctx, mentions=None):
     if ctx.guild.id not in self.log:
         self.log[ctx.guild.id] = {}
     self.log[ctx.guild.id][mentions.id] = {}
-    async for message in mentions.history(limit=None, oldest_first=True):
+    if str(ctx.guild.id) not in self.lastlogged:
+        self.lastlogged[str(ctx.guild.id)] = {}
+    self.lastlogged[str(ctx.guild.id)][str(mentions.id)] = {}
+    async for message in mentions.history(limit=None, oldest_first=True, after=after):
         if ctx.guild.id in self.optouts:
             if message.author.id in self.optouts[ctx.guild.id]:
                 a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
@@ -84,20 +87,71 @@ async def generateLog(self, ctx, mentions=None):
                 b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, ctx.guild.id, mentions.id, dt_str, attachment.filename)}
                 a["attachments"][attachment.id] = b
         self.log[ctx.guild.id][mentions.id][message.id] = a
+        self.lastlogged[str(ctx.guild.id)][str(mentions.id)] = message.id
         loggedmessages += 1
         print("Logged {} message(s)".format(loggedmessages))
         if loggedmessages % 1000 == 0:
             with open('logs/log.json', 'w') as outfile:
                 json.dump(self.log, outfile)
                 print("log dumped")
+            with open('optouts/lastlogged.json', 'w') as outfile:
+                json.dump(self.lastlogged, outfile)
+                print("lastlogged saved")
+        
     with open('logs/log.json', 'w') as outfile:
         try:
             json.dump(self.log, outfile)
         except:
             raise
+    with open('optouts/lastlogged.json', 'w') as outfile:
+        try:
+            json.dump(self.lastlogged, outfile)
+        except:
+            raise
     print("Log Generation complete.")
     self.logging = False
     await ctx.send("Log generation complete, logged {} messages".format(loggedmessages))
+
+async def livelog(self, ctx):
+    if await logcheck(self, ctx):
+        return
+    message = ctx
+    channel = ctx.channel.id
+    guild = ctx.guild.id
+    
+    dt_str = str(datetime.now().date()) + "/" + str(datetime.now().time())
+    
+    if not guild in self.log.keys():
+        self.log[guild] = {}
+    if not channel in self.log[guild].keys():
+        self.log[guild][channel] = {}
+    if not message.id in self.log[guild][channel].keys():
+        self.log[guild][channel][ctx.id] = {}
+        if not await optcheck(self, ctx):
+            self.log[guild][channel][ctx.id]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
+        else:
+            self.log[guild][channel][ctx.id]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
+        self.log[guild][channel][ctx.id]["content"] = ctx.clean_content
+        self.log[guild][channel][ctx.id]["created_at"] = ctx.created_at.timestamp()
+        self.log[guild][channel][ctx.id]["attachments"] = {}
+        if ctx.attachments:
+            if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
+                os.makedirs("logs/{}/{}/images".format(guild, channel))
+            for attachment in ctx.attachments:
+                dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, attachment.filename)
+                await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
+                await run("chmod -R 777 logs")
+                b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
+                self.log[guild][channel][ctx.id]["attachments"][attachment.id] = b
+    if str(ctx.guild.id) not in self.lastlogged:
+        self.lastlogged[str(ctx.guild.id)] = {}
+    self.lastlogged[str(ctx.guild.id)][str(ctx.channel.id)] = {}
+    self.lastlogged[str(ctx.guild.id)][str(ctx.channel.id)] = ctx.id
+    with open('optouts/lastlogged.json', 'w') as outfile:
+        try:
+            json.dump(self.lastlogged, outfile)
+        except:
+            raise
 
 class logging(commands.Cog):
     def __init__(self, bot):
@@ -107,6 +161,8 @@ class logging(commands.Cog):
         self.logging = False
         self.newmessage = False
         self.nolog = {}
+        self.lastlogged = {}
+        self.disconnecttime = None
         if os.path.exists('optouts/optouts.pickle'):
             with open('optouts/optouts.pickle', 'rb') as handle:
                 self.optouts = pickle.load(handle)
@@ -117,6 +173,13 @@ class logging(commands.Cog):
             with open('logs/log.json', 'w') as outfile:
                 json.dump(self.log, outfile)
 
+        if os.path.exists('optouts/lastlogged.json'):
+            with open('optouts/lastlogged.json', 'rb') as json_data:
+                self.lastlogged = json.load(json_data)
+            with open('optouts/lastlogged.json', 'w') as outfile:
+                json.dump(self.lastlogged, outfile)
+            print(self.lastlogged)
+
         if os.path.exists('optouts/nolog.pickle'):
             with open('optouts/nolog.pickle', 'rb') as no_log:
                 self.nolog = pickle.load(no_log)
@@ -125,40 +188,74 @@ class logging(commands.Cog):
             os.makedirs('logs')
 
     @commands.Cog.listener()
+    async def on_disconnect(self):
+        if self.disconnecttime == None:
+            self.disconnecttime = datetime.now()
+            print("Offline")
+        else:
+            pass
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        for i in self.bot.guilds:
+            for channel in i.channels:
+                if channel.id not in self.nolog[i.id]:
+                    n = 0
+                    if not type(channel) == discord.channel.CategoryChannel and not type(channel) == discord.channel.VoiceChannel:
+                        if i.id not in self.log:
+                            self.log[i.id] = {}
+                        if channel.id not in self.log[i.id]:
+                            self.log[i.id][channel.id] = {}
+                        
+                        if str(i.id) not in self.lastlogged:
+                            self.lastlogged[str(i.id)] = {}
+                        if str(i.id) in self.lastlogged:
+                            #print(self.lastlogged[str(i.id)])
+                            if str(channel.id) in self.lastlogged[str(i.id)]:
+                                after = discord.Object(self.lastlogged[str(i.id)][str(channel.id)])
+                            else:
+                                after = None
+                        else:
+                            after = None
+                        async for message in channel.history(limit=None, oldest_first=True, after=after):
+                            if i.id in self.optouts:
+                                if message.author.id in self.optouts[i.id]:
+                                    a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                                else:
+                                    a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                            else:
+                                a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                            if message.attachments:
+                                for attachment in message.attachments:
+                                    dt_str = str(message.created_at.date()) + "/" + str(message.created_at.time())
+                                    dlpath = "logs/{}/{}/images/{}-{}".format(i.id, channel.id, dt_str, attachment.filename)
+                                    if not os.path.exists(dlpath):
+                                        await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
+                                        await run("chmod -R 777 logs")
+                                    else:
+                                        print("file already exists in local cache")
+                                    b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, i.id, channel.id, dt_str, attachment.filename)}
+                                    a["attachments"][attachment.id] = b
+                            self.log[i.id][channel.id][message.id] = a
+                            self.lastlogged[str(i.id)][str(channel.id)] = message.id
+                            if n % 100 == 0:
+                                with open('optouts/lastlogged.json', 'w') as outfile:
+                                    json.dump(self.lastlogged, outfile)
+                                with open('logs/log.json', 'w') as outfile:
+                                    json.dump(self.log, outfile)
+            with open('optouts/lastlogged.json', 'w') as outfile:
+                json.dump(self.lastlogged, outfile)
+            with open('logs/log.json', 'w') as outfile:
+                json.dump(self.log, outfile)
+            print("Logs updated")
+
+
+
+    @commands.Cog.listener()
     async def on_message(self, ctx):
         if self.logging == False:
             if ctx.guild:
-                if await logcheck(self, ctx):
-                    return
-                message = ctx
-                channel = ctx.channel.id
-                guild = ctx.guild.id
-                user = ctx.author.id
-                
-                dt_str = str(datetime.now().date()) + "/" + str(datetime.now().time())
-                
-                if not guild in self.log.keys():
-                    self.log[guild] = {}
-                if not channel in self.log[guild].keys():
-                    self.log[guild][channel] = {}
-                if not message.id in self.log[guild][channel].keys():
-                    self.log[guild][channel][ctx.id] = {}
-                    if not await optcheck(self, ctx):
-                        self.log[guild][channel][ctx.id]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
-                    else:
-                        self.log[guild][channel][ctx.id]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
-                    self.log[guild][channel][ctx.id]["content"] = ctx.clean_content
-                    self.log[guild][channel][ctx.id]["created_at"] = ctx.created_at.timestamp()
-                    self.log[guild][channel][ctx.id]["attachments"] = {}
-                    if ctx.attachments:
-                        if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
-                            os.makedirs("logs/{}/{}/images".format(guild, channel))
-                        for attachment in ctx.attachments:
-                            dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, attachment.filename)
-                            await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
-                            await run("chmod -R 777 logs")
-                            b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
-                            self.log[guild][channel][ctx.id]["attachments"][attachment.id] = b
+                await livelog(self, ctx)
                 with open('logs/log.json', 'w') as outfile:
                     json.dump(self.log, outfile)
             else:
@@ -166,37 +263,7 @@ class logging(commands.Cog):
         else:
             if ctx.channel.id != self.logging:
                 if ctx.guild:
-                    if await logcheck(self, ctx):
-                        return
-                    message = ctx
-                    channel = ctx.channel.id
-                    guild = ctx.guild.id
-                    user = ctx.author.id
-                    
-                    dt_str = str(datetime.now().date()) + "/" + str(datetime.now().time())
-                    
-                    if not guild in self.log.keys():
-                        self.log[guild] = {}
-                    if not channel in self.log[guild].keys():
-                        self.log[guild][channel] = {}
-                    if not message.id in self.log[guild][channel].keys():
-                        self.log[guild][channel][ctx.id] = {}
-                        if not await optcheck(self, ctx):
-                            self.log[guild][channel][ctx.id]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
-                        else:
-                            self.log[guild][channel][ctx.id]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
-                        self.log[guild][channel][ctx.id]["content"] = ctx.clean_content
-                        self.log[guild][channel][ctx.id]["created_at"] = ctx.created_at.timestamp()
-                        self.log[guild][channel][ctx.id]["attachments"] = {}
-                        if ctx.attachments:
-                            if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
-                                os.makedirs("logs/{}/{}/images".format(guild, channel))
-                            for attachment in ctx.attachments:
-                                dlpath = "logs/{}/{}/images/{}-{}".format(guild, channel, dt_str, attachment.filename)
-                                await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
-                                await run("chmod -R 777 logs")
-                                b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
-                                self.log[guild][channel][ctx.id]["attachments"][attachment.id] = b
+                    await livelog(self, ctx)
             else:
                 pass
     
@@ -317,7 +384,3 @@ class logging(commands.Cog):
                 await ctx.send("You were never opted out on this server.")
         except Exception as e:
             await ctx.send("There was an error opting in. please try again later. \n Here is the exception details\n ```{}```".format(e))
-    
-    @commands.command()
-    async def printlog(self, ctx):
-        print(self.log[ctx.guild.id][ctx.channel.id])
