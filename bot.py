@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-from Cogs import AdminCheck, Exit, LoggerV2, RichPresence, Ping, mstatus, term, Settings, API
+from Cogs import AdminCheck, Exit, LoggerRewrite, RichPresence, Ping, mstatus, term, Settings, API
 import os
 import time
 import asyncio
@@ -24,9 +24,8 @@ if __name__ == "__main__":
         exit()
     else:
         print("Initializing {}...".format(bname))
-        print("Running {} version {}".format(bname, version))
         print("------------------------------")
-        print("Cog Versions:")
+        print("Cogs:")
 else:
     print("Bot.py not running as main instance. exiting.")
     exit()
@@ -38,7 +37,7 @@ bot = commands.Bot(command_prefix="<@!{}> ".format(botid))
 Settings.setup(bot)
 AdminCheck.setup(bot)
 Exit.setup(bot)
-LoggerV2.setup(bot)
+LoggerRewrite.setup(bot)
 RichPresence.setup(bot)
 Ping.setup(bot)
 mstatus.setup(bot)
@@ -51,11 +50,12 @@ async def on_ready():
     activeservers = bot.guilds
     for s in activeservers:
         count += len(s.members)
-    print('\n{} active in {} servers with {} users.'.format(bname, len(bot.guilds), count))
+    print('\n{} active in {} servers with {} users.\n'.format(bname, len(bot.guilds), count))
     await bot.change_presence(activity=discord.Game(name="System Ready."))
     await Settings.setting.initialize(bot)
     await API.APIstart(bot)
     await RichPresence.main(bot)
+
 
 @bot.event
 async def on_command_error(ctx, error):
