@@ -9,6 +9,7 @@ from datetime import datetime
 import pickle
 import json
 from Cogs import AdminCheck
+import aiofiles
 
 load_dotenv()
 logurl = os.getenv('LOG_URL')
@@ -66,10 +67,10 @@ async def logcheck(self, ctx=None, channel=None, guild=None):
 async def generateLog(self, mode, ctx=None, channel=None, after=None,):
     loggedMessages = 0
 
-    def savelog():
+    async def savelog():
         try:
-            with open('logs/log.json', 'w') as outfile:
-                json.dump(self.log, outfile)
+            async with aiofiles.open(f'logs/log.json', 'w') as outfile:
+                await outfile.write(json.dumps(self.log))
             with open('optouts/lastlogged.json', 'w') as outfile:
                 json.dump(self.lastlogged, outfile)
             return True
@@ -170,8 +171,9 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                     if loggedMessages == round(len(tolog)*1):
                         await completion.edit(content="```################################################## 100%```", delete_after=10)
                 if loggedMessages % 100000 == 0:
-                    savelog()
-            savelog()
+                    await savelog()
+            if loggedMessages > 0:
+                await savelog()
         except discord.errors.Forbidden:
             print("Forbidden")
             return False
@@ -238,7 +240,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
         if ctx.guild:
             if self.logging == False:
                 await livelog(self, ctx)
-                savelog()
+                await savelog()
             else:
                 if ctx.channel.id != self.logging:
                     await livelog(self, ctx)
