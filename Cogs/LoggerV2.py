@@ -61,9 +61,9 @@ async def generateLog(self, ctx, mentions=None, after=None):
     self.logging = mentions.id
     print("Generating logs for channel {} in server {}".format(mentions.id, ctx.guild.id))
     await ctx.send("Generating log for channel {}, this may take a minute...".format(mentions.name))
-    if ctx.guild.id not in self.log:
-        self.log[ctx.guild.id] = {}
-    self.log[ctx.guild.id][mentions.id] = {}
+    if str(ctx.guild.id) not in self.log:
+        self.log[str(ctx.guild.id)] = {}
+    self.log[str(ctx.guild.id)][str(mentions.id)] = {}
     if str(ctx.guild.id) not in self.lastlogged:
         self.lastlogged[str(ctx.guild.id)] = {}
     self.lastlogged[str(ctx.guild.id)][str(mentions.id)] = {}
@@ -86,7 +86,7 @@ async def generateLog(self, ctx, mentions=None, after=None):
                     print("file already exists in local cache")
                 b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, ctx.guild.id, mentions.id, dt_str, attachment.filename)}
                 a["attachments"][attachment.id] = b
-        self.log[ctx.guild.id][mentions.id][message.id] = a
+        self.log[str(ctx.guild.id)][str(mentions.id)][message.id] = a
         self.lastlogged[str(ctx.guild.id)][str(mentions.id)] = message.id
         loggedmessages += 1
         print("Logged {} message(s)".format(loggedmessages))
@@ -116,8 +116,8 @@ async def livelog(self, ctx):
     if await logcheck(self, ctx):
         return
     message = ctx
-    channel = ctx.channel.id
-    guild = ctx.guild.id
+    channel = str(ctx.channel.id)
+    guild = str(ctx.guild.id)
     
     dt_str = str(datetime.now().date()) + "/" + str(datetime.now().time())
     
@@ -125,15 +125,15 @@ async def livelog(self, ctx):
         self.log[guild] = {}
     if not channel in self.log[guild].keys():
         self.log[guild][channel] = {}
-    if not message.id in self.log[guild][channel].keys():
-        self.log[guild][channel][ctx.id] = {}
+    if not str(message.id) in self.log[guild][channel].keys():
+        self.log[guild][channel][str(ctx.id)] = {}
         if not await optcheck(self, ctx):
-            self.log[guild][channel][ctx.id]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
+            self.log[guild][channel][str(ctx.id)]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
         else:
-            self.log[guild][channel][ctx.id]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
-        self.log[guild][channel][ctx.id]["content"] = ctx.clean_content
-        self.log[guild][channel][ctx.id]["created_at"] = ctx.created_at.timestamp()
-        self.log[guild][channel][ctx.id]["attachments"] = {}
+            self.log[guild][channel][str(ctx.id)]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
+        self.log[guild][channel][str(ctx.id)]["content"] = ctx.clean_content
+        self.log[guild][channel][str(ctx.id)]["created_at"] = ctx.created_at.timestamp()
+        self.log[guild][channel][str(ctx.id)]["attachments"] = {}
         if ctx.attachments:
             if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
                 os.makedirs("logs/{}/{}/images".format(guild, channel))
@@ -142,7 +142,7 @@ async def livelog(self, ctx):
                 await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
                 await run("chmod -R 777 logs")
                 b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
-                self.log[guild][channel][ctx.id]["attachments"][attachment.id] = b
+                self.log[guild][channel][str(ctx.id)]["attachments"][attachment.id] = b
     if str(ctx.guild.id) not in self.lastlogged:
         self.lastlogged[str(ctx.guild.id)] = {}
     self.lastlogged[str(ctx.guild.id)][str(ctx.channel.id)] = {}
@@ -202,10 +202,10 @@ class logging(commands.Cog):
                 if channel.id not in self.nolog[i.id]:
                     n = 0
                     if not type(channel) == discord.channel.CategoryChannel and not type(channel) == discord.channel.VoiceChannel:
-                        if i.id not in self.log:
-                            self.log[i.id] = {}
-                        if channel.id not in self.log[i.id]:
-                            self.log[i.id][channel.id] = {}
+                        if str(i.id) not in self.log:
+                            self.log[str(i.id)] = {}
+                        if str(channel.id) not in self.log[str(i.id)]:
+                            self.log[str(i.id)][str(channel.id)] = {}
                         
                         if str(i.id) not in self.lastlogged:
                             self.lastlogged[str(i.id)] = {}
@@ -238,7 +238,7 @@ class logging(commands.Cog):
                                             print("file already exists in local cache")
                                         b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, i.id, channel.id, dt_str, attachment.filename)}
                                         a["attachments"][attachment.id] = b
-                                self.log[i.id][channel.id][message.id] = a
+                                self.log[str(i.id)][str(channel.id)][message.id] = a
                                 self.lastlogged[str(i.id)][str(channel.id)] = message.id
                                 n += 1
                                 print("logged {} messages from channel {} in server {}".format(n, channel.name, i.name))
@@ -252,7 +252,7 @@ class logging(commands.Cog):
                                     json.dump(self.lastlogged, outfile)
                                 with open('logs/log.json', 'w') as outfile:
                                     json.dump(self.log, outfile)
-                            print("Logs updated")
+                                print("Logs updated")
                         except discord.errors.Forbidden:
                             print("forbidden error")
             #with open('optouts/lastlogged.json', 'w') as outfile:
@@ -279,6 +279,7 @@ class logging(commands.Cog):
                     await livelog(self, ctx)
             else:
                 pass
+        print(self.bot.guilds)
     
     @commands.command()
     async def makelog(self, ctx):
