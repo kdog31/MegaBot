@@ -45,14 +45,23 @@ async def optcheck(self, ctx):
     except KeyError:
         return False
 
-async def logcheck(self, ctx):
-    try:
-        if ctx.channel.id in self.nolog[ctx.guild.id]:
-            return True
-        else:
+async def logcheck(self, ctx=None, channel=None, guild=None):
+    if ctx != None:
+        try:
+            if ctx.channel.id in self.nolog[ctx.guild.id]:
+                return True
+            else:
+                return False
+        except KeyError:
             return False
-    except KeyError:
-        return False
+    else:
+        try:
+            if channel.id in self.nolog[guild.id]:
+                return True
+            else:
+                return False
+        except KeyError:
+            return False
 
 async def generateLog(self, mode, ctx=None, channel=None, after=None,):
     loggedMessages = 0
@@ -116,7 +125,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
             if mode == 1:
                 self.log[str(guild.id)][str(channel.id)] = {}
                 tolog = await channel.history(limit=None, oldest_first=True, after=after).flatten()
-                banana = await sender.send("{} messages to log.".format(len(tolog)))
+                await sender.send("{} messages to log.".format(len(tolog)))
             async for message in channel.history(limit=None, oldest_first=True, after=after):
                 if guild.id in self.optouts and message.author.id in self.optouts[guild.id]:
                     a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
@@ -173,7 +182,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
         for i in self.bot.guilds:
             for channel in i.channels:
                 if not type(channel) == discord.channel.CategoryChannel and not type(channel) == discord.channel.VoiceChannel:
-                    if not channel.id in self.nolog[i.id]:
+                    if not await logcheck(self, channel=channel, guild=i):
                         #check if server and channel exist in the log, create if not.
                         if str(i.id) not in self.log:
                             self.log[str(i.id)] = {}
@@ -187,6 +196,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                             else:
                                 after = None
                         else:
+                            self.lastlogged[str(i.id)] = {}
                             after = None
                         self.logging = channel.id
                         print("Catching up on channel {} in server {}.".format(channel.name, i.name))
