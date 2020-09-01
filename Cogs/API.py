@@ -111,7 +111,7 @@ async def APIstart(bot):
     site = web.TCPSite(runner, None, port)
     try:
         await site.start()
-        print("API started on port {}".format(port))
+        print("API started on port {}\n".format(port))
     except PermissionError:
         print("Unable to start API, check ports and try again")
     except OSError:
