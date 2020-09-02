@@ -24,8 +24,8 @@ else:
 def setup(bot):
     bot.add_cog(logging(bot))
     print("Megabot Logging module loaded")
-    if logurl == "":
-        print("   WARN: Log URL not set, automatic log publishing disabled.")
+    if logurl == "/logs":
+        print("   WARN: Log URL not set, defaulting to internal HTTP server.")
     if panic_word == "":
         print("   WARN: Panic word not set, unable to create panic logs.")
 
@@ -88,18 +88,18 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
         dt_str = str(datetime.now().date()) + "/" + str(datetime.now().time())
         
         if not guild in self.log.keys():
-            self.log[guild] = {}
-        if not channel in self.log[guild].keys():
-            self.log[guild][channel] = {}
-        if not str(message.id) in self.log[guild][channel].keys():
-            self.log[guild][channel][str(ctx.id)] = {}
+            self.log[guild] = {'name': ctx.guild.name, 'channels': {}}
+        if not channel in self.log[guild]['channels'].keys():
+            self.log[guild]['channels'][channel] = {'name': ctx.channel.name, 'messages': {}}
+        if not str(message.id) in self.log[guild]['channels'][channel]['messages'].keys():
+            self.log[guild]['channels'][channel]['messages'][str(ctx.id)] = {}
             if not await optcheck(self, ctx):
-                self.log[guild][channel][str(ctx.id)]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
+                self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["author"] = {"author_id": ctx.author.id, "author_displayname": ctx.author.name}
             else:
-                self.log[guild][channel][str(ctx.id)]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
-            self.log[guild][channel][str(ctx.id)]["content"] = ctx.clean_content
-            self.log[guild][channel][str(ctx.id)]["created_at"] = ctx.created_at.timestamp()
-            self.log[guild][channel][str(ctx.id)]["attachments"] = {}
+                self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["author"] = {"author_id": "Opted out", "author_displayname": "Opted out"}
+            self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["content"] = ctx.clean_content
+            self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["created_at"] = ctx.created_at.timestamp()
+            self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["attachments"] = {}
             if ctx.attachments:
                 if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
                     os.makedirs("logs/{}/{}/images".format(guild, channel))
@@ -108,7 +108,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                     await run("curl --create-dirs {} -o {}".format(attachment.url, dlpath))
                     await run("chmod -R 777 logs")
                     b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
-                    self.log[guild][channel][str(ctx.id)]["attachments"][attachment.id] = b
+                    self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["attachments"][attachment.id] = b
         if str(ctx.guild.id) not in self.lastlogged:
             self.lastlogged[str(ctx.guild.id)] = {}
         self.lastlogged[str(ctx.guild.id)][str(ctx.channel.id)] = {}
@@ -124,7 +124,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
         tolog = 0
         try:
             if mode == 1:
-                self.log[str(guild.id)][str(channel.id)] = {}
+                self.log[str(guild.id)]['channels'][str(channel.id)]['messages'] = {}
                 tolog = await channel.history(limit=None, oldest_first=True, after=after).flatten()
                 await sender.send("{} messages to log.".format(len(tolog)))
             async for message in channel.history(limit=None, oldest_first=True, after=after):
@@ -143,7 +143,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                             print("file exists in local cache")
                         b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild.id, channel.id, dt_str, attachment.filename)}
                         a["attachments"][attachment.id] = b
-                self.log[str(guild.id)][str(channel.id)][message.id] = a
+                self.log[str(guild.id)]['channels'][str(channel.id)]['messages'][message.id] = a
                 self.lastlogged[str(guild.id)][str(channel.id)] = message.id
                 loggedMessages += 1
                 print ("logged {} message(s) from channel {}.".format(loggedMessages, channel.name))
@@ -187,9 +187,9 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                     if not await logcheck(self, channel=channel, guild=i):
                         #check if server and channel exist in the log, create if not.
                         if str(i.id) not in self.log:
-                            self.log[str(i.id)] = {}
-                        if str(channel.id) not in self.log[str(i.id)]:
-                            self.log[str(i.id)][str(channel.id)] = {}
+                            self.log[str(i.id)] = {'name': i.name, 'channels': {}}
+                        if str(channel.id) not in self.log[str(i.id)]['channels']:
+                            self.log[str(i.id)]['channels'][str(channel.id)] = {'name': channel.name, 'messages': {}}
 
                         #check if server and channel exist in lastlogged, create if not.
                         if str(i.id) in self.lastlogged:
