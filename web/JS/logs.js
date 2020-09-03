@@ -28,6 +28,7 @@ function getChannels(server) {
                     opt.appendChild(document.createTextNode(val[key1]))
                     opt.value = key1
                     sel.appendChild(opt)
+                    getMessages()
                 }
             };
         });

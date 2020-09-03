@@ -53,7 +53,6 @@ async def on_ready():
     print('\n{} active in {} servers with {} users.\n'.format(bname, len(bot.guilds), count))
     await bot.change_presence(activity=discord.Game(name="System Ready."))
     await Settings.setting.initialize(bot)
-    await API.APIstart(bot)
     await RichPresence.main(bot)
 
 

@@ -247,6 +247,11 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                 else:
                     pass
 
+async def loadlog(self):
+    if os.path.exists('logs/log.json'):
+        async with aiofiles.open('logs/log.json', 'r') as json_data:
+            self.log = json.loads(await json_data.read())
+
 class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -261,11 +266,6 @@ class logging(commands.Cog):
             with open('optouts/optouts.pickle', 'rb') as handle:
                 self.optouts = pickle.load(handle)
 
-        if os.path.exists('logs/log.json'):
-            with open('logs/log.json', 'rb') as json_data:
-                self.log = json.load(json_data)
-            with open('logs/log.json', 'w') as outfile:
-                json.dump(self.log, outfile)
 
         if os.path.exists('optouts/lastlogged.json'):
             with open('optouts/lastlogged.json', 'rb') as json_data:
@@ -282,6 +282,7 @@ class logging(commands.Cog):
         
     @commands.Cog.listener()
     async def on_ready(self):
+        await loadlog(self)
         await asyncio.sleep(2)
         await generateLog(self, 0)
     

@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 import asyncio
 import json
+import aiofiles
 
 client = discord.Client()
 load_dotenv()
@@ -21,7 +22,7 @@ async def handle(request):
     server = request.match_info.get('server')
     rchannel = request.match_info.get('channel')
     query = request.query
-    log = await loadlog()
+    log = await API.loadlog()
     if not "len" in query:
         length = 10
     else:
@@ -96,7 +97,10 @@ async def logs(request):
     return web.FileResponse('./web/log/index.html')
 
 async def files(request):
-    return web.FileResponse('./logs/{}/{}/{}/{}/{}'.format(request.match_info.get('server'), request.match_info.get('channel'), request.match_info.get('folder'), request.match_info.get('date'), request.match_info.get('file')))
+    if os.path.exists('./logs/{}/{}/{}/{}/{}'.format(request.match_info.get('server'), request.match_info.get('channel'), request.match_info.get('folder'), request.match_info.get('date'), request.match_info.get('file'))):
+        return web.FileResponse('./logs/{}/{}/{}/{}/{}'.format(request.match_info.get('server'), request.match_info.get('channel'), request.match_info.get('folder'), request.match_info.get('date'), request.match_info.get('file')))
+    else:
+        return web.HTTPNotFound()
 
 app = web.Application()
 app.add_routes([web.get('/', landing),
@@ -110,7 +114,7 @@ app.add_routes([web.get('/', landing),
                 web.get('/api/servers/{server}/{channel}', handle)])
 
 
-async def APIstart(bot):
+async def APIstart(self):
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, None, port)
@@ -122,14 +126,33 @@ async def APIstart(bot):
     except OSError:
         pass
 
-async def loadlog():
-    if os.path.exists('logs/log.json'):
-        with open('logs/log.json', 'rb') as json_data:
-            log = json.load(json_data)
-            return log
 
 class API(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         global gbot
         gbot = bot
+        API.size = 0
+        API.log = {}
+        
+    async def loadlog():
+        if os.path.exists('logs/log.json'):
+            newsize = os.path.getsize('logs/log.json')
+            #try:
+            if newsize > API.size:
+                API.size = newsize
+                async with aiofiles.open('logs/log.json', 'rb') as json_data:
+                    API.log = json.loads(await json_data.read())
+                    return API.log
+            else:
+                return API.log
+            #except UnboundLocalError:
+            #    print('this', newsize)
+            #    size = os.path.getsize('logs/log.json')
+            #    async with aiofiles.open('logs/log.json', 'rb') as json_data:
+            #        log = json.loads(await json_data.read())
+            #        return log
+    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await APIstart(self)
