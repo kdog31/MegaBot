@@ -15,6 +15,7 @@
     text-align: center;
 }
 body {
+    position: relative;
     padding: 5px;
     background-color: #2C2F33;
     color: white;
@@ -26,6 +27,7 @@ code {
     border-width: 1px;
     border-color: black;
     border-radius: 5px;
+    display: block;
 }
 input[type=number]{
     width: 50px;
