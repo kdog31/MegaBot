@@ -28,8 +28,8 @@ function getChannels(server) {
                     opt.appendChild(document.createTextNode(val[key1]))
                     opt.value = key1
                     sel.appendChild(opt)
-                    getMessages()
                 }
+                getMessages()
             };
         });
     });
@@ -67,6 +67,7 @@ function getMessages() {
 
 document.addEventListener('input', function (event) {
     if (event.target.id !== 'server') return;
+    $("#messages").empty()
     getChannels(document.getElementById('server').value)
     $("#channel").empty()
 })
