@@ -49,8 +49,12 @@ function getMessages() {
                 var z = document.createElement("td")
                 var t = document.createTextNode(val[key1]['author']['author_displayname'] + ": ")
                 z.appendChild(t)
-                var t = document.createTextNode(val[key1]['content'])
-                z.appendChild(t)
+                showdown.setFlavor('github')
+                var converter = new showdown.Converter(),
+                    html = converter.makeHtml(val[key1]['content'])
+                const parser = new DOMParser()
+                var t = parser.parseFromString(html, 'text/html')
+                z.appendChild(t.documentElement)
                 for (key2 of Object.keys(val[key1]['attachments'])) {
                     //console.log(val[key1]['attachments'][key2]['url'])
                     var img = document.createElement("img")
