@@ -30,10 +30,11 @@ class mcstatus(commands.Cog):
                     send = "`the server {2} has {0} players and replied in {1} ms`\n".format(status.players.online, status.latency, i)
                     self.message = self.message + send
                 except ConnectionRefusedError:
-                    send = "`the server {} refused to connect.`".format(i)
+                    send = "`the server {} refused to connect.`\n".format(i)
                     self.message = self.message + send
                 except:
-                    send = "`There was an unknown error connecting to {}".format(i)
+                    send = "`There was an unknown error connecting to {}`\n".format(i)
+                    self.message = self.message + send
             await ctx.send(self.message)
         else:
             await ctx.send("No Minecraft servers configured")
