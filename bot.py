@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-from Cogs import AdminCheck, Exit, LoggerRewrite, RichPresence, Ping, mstatus, term, Settings, API
+from Cogs import AdminCheck, Exit, LoggerRewrite, RichPresence, Ping, mstatus, term, Settings, API, remind
 import os
 import time
 import asyncio
@@ -43,6 +43,7 @@ Ping.setup(bot)
 mstatus.setup(bot)
 term.setup(bot)
 API.setup(bot)
+remind.setup(bot)
 
 @bot.event
 async def on_ready():

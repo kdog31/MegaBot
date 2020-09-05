@@ -25,9 +25,16 @@ class mcstatus(commands.Cog):
             self.servers = self.settings[ctx.guild.id]['Minecraft']
             for i in self.servers:
                 server = MinecraftServer.lookup(i)
-                status = server.status()
-                send = "`the server {2} has {0} players and replied in {1} ms`\n".format(status.players.online, status.latency, i)
-                self.message = self.message + send
+                try:
+                    status = server.status()
+                    send = "`the server {2} has {0} players and replied in {1} ms`\n".format(status.players.online, status.latency, i)
+                    self.message = self.message + send
+                except ConnectionRefusedError:
+                    send = "`the server {} refused to connect.`\n".format(i)
+                    self.message = self.message + send
+                except:
+                    send = "`There was an unknown error connecting to {}`\n".format(i)
+                    self.message = self.message + send
             await ctx.send(self.message)
         else:
             await ctx.send("No Minecraft servers configured")

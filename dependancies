@@ -4,3 +4,4 @@ python-dotenv
 asyncio
 aiohttp
 aiofiles
+parsedatetime
