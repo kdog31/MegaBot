@@ -29,7 +29,7 @@ class mcstatus(commands.Cog):
                     status = server.status()
                     send = "`the server {2} has {0} players and replied in {1} ms`\n".format(status.players.online, status.latency, i)
                     self.message = self.message + send
-                except: ConnectionRefusedError:
+                except ConnectionRefusedError:
                     send = "`the server {} refused to connect.`".format(i)
                     self.message = self.message + send
                 except:
