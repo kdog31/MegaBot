@@ -13,6 +13,7 @@ WORKDIR /MegaBot
 
 COPY dependancies ./
 RUN pip install --no-cache-dir -r dependancies
+RUN python3 -m spacy download en_core_web_sm
 
 COPY . .
 
