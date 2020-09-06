@@ -43,7 +43,7 @@ class remind(commands.Cog):
             self.reminders.append([[a.year, a.month, a.day, a.hour, a.minute, a.second], ctx.author.id, ctx.channel.id, reminder])
             self.settings['reminders'] = self.reminders
             await Settings.setting.save(self.settings)
-            await ctx.send("I'll remind you to {} at {}".format(reminder, a))
+            await ctx.send("I'll remind you {} at {}".format(reminder, a))
         else:
             await ctx.send("Could not parse reminder, try wording like this ``remind me to do something at some time```")
 
