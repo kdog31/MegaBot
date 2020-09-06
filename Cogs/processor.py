@@ -44,6 +44,7 @@ async def get_reminder(query):
     def verb(x):
       verb_list=[]
       for token in x:
+        print(token.text, token.pos_)
         if token.pos_=='VERB':
           verb_list.append(token.text)   
       return verb_list
@@ -55,9 +56,25 @@ async def get_reminder(query):
         if token.pos_=='NOUN':
           noun_list.append(token.text)
       return noun_list
+    
+    def propn(x):
+      pnoun_list=[]
+      for token in x:
+        if token.pos_=='PROPN':
+          pnoun_list.append(token.text)
+      return pnoun_list
+
+    def sconj(x):
+      sconj_list=[]
+      for token in x:
+        if token.pos_=='SCONJ':
+          sconj_list.append(token.text)
+      return sconj_list
 
     Noun=noun(doc)
     Verb=verb(doc)
+    Proper=propn(doc)
+    Conj=sconj(doc)
 
     for i in Noun:
       if 'p.m.' in Noun:
@@ -69,11 +86,16 @@ async def get_reminder(query):
     '''
     Displaying task
     '''
-
+    print(Noun, Proper, Verb)
     if not Noun:
       task=(Verb[1])
+    if Proper:
+      if Conj:
+        task=("{} {} {}".format(Conj[0], Proper[0], Verb[1]))
+      else:
+        task=(Proper[0] + ' ' +Verb[1])
     else:
-      task=(Verb[1]+' '+Noun[0])
+      task=('to ' + Verb[1]+' '+Noun[0])
     return(task)
       
 
