@@ -55,7 +55,7 @@ class remind(commands.Cog):
             b = datetime(a_load[0], a_load[1], a_load[2], a_load[3], a_load[4], a_load[5])
             if now > b:
                 channel = self.bot.get_channel(i[2])
-                await channel.send("Hey <@{}>, you asked me to remind you to {}.".format(i[1], i[3]))
+                await channel.send("Hey <@{}>, you asked me to remind you {}.".format(i[1], i[3]))
                 self.reminders.remove(i)
                 await Settings.setting.save(self.settings)
         
