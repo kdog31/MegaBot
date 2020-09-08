@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import pickle
 import json
-from Cogs import AdminCheck
+from Cogs import AdminCheck, LogUpdater
 import aiofiles
 
 load_dotenv()
@@ -136,9 +136,9 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                 await sender.send("{} messages to log.".format(len(tolog)))
             async for message in channel.history(limit=None, oldest_first=True, after=after):
                 if guild.id in self.optouts and message.author.id in self.optouts[guild.id]:
-                    a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                    a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}, 'links': {}}
                 else:
-                    a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}}
+                    a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}, 'links': {}}
                 if message.attachments:
                     for attachment in message.attachments:
                         dt_str = str(message.created_at.date()) + "/" + str(message.created_at.time())
@@ -150,6 +150,11 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                             print("file exists in local cache")
                         b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild.id, channel.id, dt_str, attachment.filename)}
                         a["attachments"][attachment.id] = b
+                urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',message.content)
+                if urls:
+                    u = {}
+                    for idx, val in enumerate(urls):
+                        a["links"][idx] = val
                 self.log[str(guild.id)]['channels'][str(channel.id)]['messages'][message.id] = a
                 self.lastlogged[str(guild.id)][str(channel.id)] = message.id
                 loggedMessages += 1
@@ -253,6 +258,13 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                     await livelog(self, ctx)
                 else:
                     pass
+    
+    if mode == 3:
+        try:
+            await savelog()
+            return True
+        except:
+            return False
 
 async def loadlog(self):
     if os.path.exists('logs/log.json'):
@@ -395,3 +407,17 @@ class logging(commands.Cog):
                 await ctx.send("My recordings for the channel '{0}' can be found at {1}".format(ctx.channel.name, logurl))
             else:
                 await ctx.send("Public viewing of logs is not enabled. Contact the administrator for more information")
+    
+    @commands.command()
+    async def updatelog(self, ctx):
+        await ctx.send("Updating logfile")
+        try:
+            print("1")
+            self.log, entries = LogUpdater.updatelog(self.log)
+            print("2")
+            await generateLog(self, 3)
+            print("3")
+            await ctx.send("log update complete. {} entries converted, catching up on logs".format(entries))
+            await generateLog(self, 0)
+        except:
+            await ctx.send("Something went wrong")
