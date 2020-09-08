@@ -29,6 +29,9 @@ code {
     border-radius: 5px;
     display: block;
 }
+a {
+    color: cyan;
+}
 input[type=number]{
     width: 50px;
 }
