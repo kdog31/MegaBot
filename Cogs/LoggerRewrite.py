@@ -100,6 +100,7 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
             self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["content"] = ctx.clean_content
             self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["created_at"] = ctx.created_at.timestamp()
             self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["attachments"] = {}
+            self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["links"] = {}
             if ctx.attachments:
                 if not os.path.exists("logs/{}/{}/images".format(guild, channel)):
                     os.makedirs("logs/{}/{}/images".format(guild, channel))
@@ -109,6 +110,12 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                     await run("chmod -R 777 logs")
                     b = {'filename': attachment.filename, 'url': "{}/{}/{}/images/{}-{}".format(logurl, guild, channel, dt_str, attachment.filename)}
                     self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["attachments"][attachment.id] = b
+            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',message.content)
+            if urls:
+                u = {}
+                for idx, val in enumerate(urls):
+                    u[idx] = val
+                self.log[guild]['channels'][channel]['messages'][str(ctx.id)]["links"] = u
         if str(ctx.guild.id) not in self.lastlogged:
             self.lastlogged[str(ctx.guild.id)] = {}
         self.lastlogged[str(ctx.guild.id)][str(ctx.channel.id)] = {}
