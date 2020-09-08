@@ -34,6 +34,20 @@ function getChannels(server) {
         });
     });
 }
+function validateYouTubeUrl(url) {
+        if (url != undefined || url != '') {
+            var regExp = /^.*(youtube\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            if (match && match[2].length == 11) {
+                // Do anything for being valid
+                // if need to change the url to embed url then use below line
+                return 'https://www.youtube.com/embed/' + match[2] + '?autoplay=0';
+            }
+            else {
+                return false
+            }
+        }
+}
 function getMessages() {
     url = "/api/servers/" + document.getElementById("server").value + "/" + document.getElementById("channel").value + "?len=" + document.getElementById("quantity").value
     //console.log(url)
@@ -59,9 +73,23 @@ function getMessages() {
                     //console.log(val[key1]['attachments'][key2]['url'])
                     var img = document.createElement("img")
                     img.src = val[key1]['attachments'][key2]['url']
+                    img.width = "640"
                     var br = document.createElement("br")
                     z.appendChild(br)
                     z.appendChild(img)
+                }
+                for (key2 of Object.keys(val[key1]['links'])) {
+                    if(validateYouTubeUrl(val[key1]['links'][key2])) {
+                        var yt = document.createElement("iframe")
+                        yt.src = validateYouTubeUrl(val[key1]['links'][key2])
+                        yt.width = "640"
+                        yt.height = "360"
+                        yt.frameBorder = "0"
+                        yt.allowFullscreen = "1"
+                        console.log(val[key1]['links'][key2])
+                        var br = document.createElement("br")
+                        z.appendChild(yt)
+                    }
                 }
                 document.getElementById("messages").appendChild(z)
             }
