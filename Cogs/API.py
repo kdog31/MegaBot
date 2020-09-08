@@ -56,11 +56,15 @@ async def handle(request):
                             for message in reversed(list(log[server]['channels'][channel]['messages'])):
                                 if logged == length:
                                     break
-                                a = {'author':{'author_id': log[server]['channels'][channel]['messages'][message]['author']['author_id'], 'author_displayname': log[server]['channels'][channel]['messages'][message]['author']['author_displayname']}, 'content': log[server]['channels'][channel]['messages'][message]['content'], 'attachments': {}}
+                                a = {'author':{'author_id': log[server]['channels'][channel]['messages'][message]['author']['author_id'], 'author_displayname': log[server]['channels'][channel]['messages'][message]['author']['author_displayname']}, 'content': log[server]['channels'][channel]['messages'][message]['content'], 'attachments': {}, 'links': {}}
                                 if log[server]['channels'][channel]['messages'][message]['attachments']:
                                     for attachment in log[server]['channels'][channel]['messages'][message]['attachments']:
                                         b = {'filename': log[server]['channels'][channel]['messages'][message]['attachments'][attachment]['filename'], 'url': log[server]['channels'][channel]['messages'][message]['attachments'][attachment]['url']}
                                         a["attachments"][attachment] = b
+                                if log[server]['channels'][channel]['messages'][message]['links']:
+                                    for i in log[server]['channels'][channel]['messages'][message]['links']:
+                                        for n in i:
+                                            a["links"][i] = log[server]['channels'][channel]['messages'][message]['links'][n]
                                 json["messages"][message] = a
                                 logged += 1
                             return web.json_response(json)
