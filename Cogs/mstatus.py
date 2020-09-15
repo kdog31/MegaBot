@@ -63,7 +63,6 @@ class mcstatus(commands.Cog):
                 settings = await Settings.setting.load()
                 if i[2] in settings[ctx.guild.id]['Minecraft']:
                     settings[ctx.guild.id]['Minecraft'].remove(i[2])
-                    print(settings)
                     await Settings.setting.save(settings)
                     await ctx.send("Minecraft server {} removed.".format(i[2]))
 
