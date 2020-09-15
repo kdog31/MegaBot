@@ -4,7 +4,7 @@ var a
 function GenerateSecret() {
     var token = document.getElementById("token").value
     inputs['token'] = token
-    $.post('/admin/token', JSON.stringify(inputs), function(){cookie = "token="+token; document.cookie = cookie; ok()});
+    $.post('/admin/token', JSON.stringify(inputs), function(){$.cookie('token', token); ok()});
     document.getElementById("incorrect").innerHTML = "Invalid Passcode"
 }
 

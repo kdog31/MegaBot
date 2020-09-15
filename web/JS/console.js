@@ -1,13 +1,5 @@
-function GetCookie(){
-    var cookie = decodeURIComponent(document.cookie)
-    var token = cookie.split(';')
-    var c = token[0]
-    var a = c.split("=")
-    var passcode = a[1]
-    return passcode
-}
 function GetSettings() {
-    url = "/admin/console/api?token=" + GetCookie()
+    url = "/admin/console/api?token=" + $.cookie('token')
     a = $.getJSON(url)
     $.getJSON(url, function(data) {
         $('#settings').empty()
@@ -58,20 +50,22 @@ function GetSettings() {
     })
 }
 function removesetting(key, index) {
-    url = "/admin/console/api?token=" + GetCookie()
+    url = "/admin/console/api?token=" + $.cookie('token')
     $.getJSON(url, function(data) {
         data[key].splice(index, 1)
         console.log(data)
-        $.post('/admin/console/api?token='+GetCookie(), JSON.stringify(data), function(){GetSettings()});
+        $.post('/admin/console/api?token='+$.cookie('token'), JSON.stringify(data), function(){GetSettings()});
     })
 }
 function addsetting(key) {
-    url = "/admin/console/api?token=" + GetCookie()
+    url = "/admin/console/api?token=" + $.cookie('token')
     $.getJSON(url, function(data) {
         newentry = document.getElementById("newdata").value
         data[key].push(newentry)
-        $.post('/admin/console/api?token='+GetCookie(), JSON.stringify(data), function(){GetSettings()});
+        $.post('/admin/console/api?token='+$.cookie('token'), JSON.stringify(data), function(){GetSettings()});
     })
 }
 
-$(document).ready(GetSettings())
+$(window).on('load', function() {
+    GetSettings()
+});
