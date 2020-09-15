@@ -6,7 +6,6 @@ word_list=[]
 nlp=spacy.load('en_core_web_sm')         #loading en_core_web_sm model from spaCy
    
 async def get_reminder(query):
-  print(query)
   for word in query.split(' '):
     wk = word
     word = word.replace("th","")
@@ -44,7 +43,6 @@ async def get_reminder(query):
     def verb(x):
       verb_list=[]
       for token in x:
-        print(token.text, token.pos_)
         if token.pos_=='VERB':
           verb_list.append(token.text)   
       return verb_list
@@ -86,7 +84,6 @@ async def get_reminder(query):
     '''
     Displaying task
     '''
-    print(Noun, Proper, Verb)
     if not Noun:
       task=(Verb[1])
     if Proper:
