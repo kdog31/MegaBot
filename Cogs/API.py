@@ -1,12 +1,15 @@
 import discord
-from discord.ext import commands
-from Cogs import Logger, RichPresence
+from discord.ext import commands, tasks
+from Cogs import Logger, RichPresence, AdminCheck, Settings
 from aiohttp import web
 import os
 from dotenv import load_dotenv
 import asyncio
 import json
 import aiofiles
+import random
+import string
+import datetime
 
 client = discord.Client()
 load_dotenv()
@@ -75,6 +78,35 @@ async def handle(request):
                         continue
         return web.HTTPNotFound()
 
+async def consoleAPI(request):
+    query = request.query
+    if request.method == "GET":
+        if "token" in query.keys():
+            for i in API.validCodes:
+                if query['token'] in i:
+                    settings = await Settings.setting.load()
+                    a = int(i[2])
+                    return web.json_response(settings[a])
+            else:
+                return web.HTTPNotFound()
+        else:
+            return web.HTTPUnauthorized()
+    elif request.method == "POST":
+        if "token" in query.keys():
+            for i in API.validCodes:
+                if query['token'] in i:
+                    try:
+                        newSettings = await request.json()
+                        settings = await Settings.setting.load()
+                        settings[int(i[2])] = newSettings
+                        await Settings.setting.save(settings)
+                        return web.HTTPOk()
+                    except:
+                        return web.HTTPInternalServerError()
+    else:
+        return web.HTTPMethodNotAllowed
+
+
 async def landing(request):
     return web.FileResponse('./web/index.html')
 
@@ -100,6 +132,26 @@ async def js(request):
 async def logs(request):
     return web.FileResponse('./web/log/index.html')
 
+async def admin(request):
+    return web.FileResponse('./web/admin/index.html')
+
+async def console(request):
+    return web.FileResponse('./web/admin/console.html')
+
+async def token(request):
+    data = await request.json()
+    token = data['token']
+    if API.validCodes:
+        for i in API.validCodes:
+            if i[1] == token:
+                return web.HTTPOk()
+            else:
+                return web.HTTPUnauthorized()
+    else:
+        return web.HTTPUnauthorized()
+    
+    
+
 async def files(request):
     if os.path.exists('./logs/{}/{}/{}/{}/{}'.format(request.match_info.get('server'), request.match_info.get('channel'), request.match_info.get('folder'), request.match_info.get('date'), request.match_info.get('file'))):
         return web.FileResponse('./logs/{}/{}/{}/{}/{}'.format(request.match_info.get('server'), request.match_info.get('channel'), request.match_info.get('folder'), request.match_info.get('date'), request.match_info.get('file')))
@@ -112,11 +164,20 @@ app.add_routes([web.get('/', landing),
                 web.get('/JS/{script}', js),
                 web.get('/logs/{server}/{channel}/{folder}/{date}/{file}', files),
                 web.get('/log', logs),
+                web.get('/admin', admin),
+                web.post('/admin/token', token),
+                web.get('/admin/console', console),
+                web.get('/admin/console/api', consoleAPI),
+                web.post('/admin/console/api', consoleAPI),
                 web.get('/api/stats', stats),
                 web.get('/api/servers', handle),
                 web.get('/api/servers/{server}', handle),
                 web.get('/api/servers/{server}/{channel}', handle)])
 
+async def get_random_alphanumeric_string(length):
+    letters_and_digits = string.ascii_letters + string.digits
+    result_str = ''.join((random.choice(letters_and_digits) for i in range(length)))
+    return result_str
 
 async def APIstart(self):
     runner = web.AppRunner(app)
@@ -138,7 +199,8 @@ class API(commands.Cog):
         gbot = bot
         API.size = 0
         API.log = {}
-        
+        API.validCodes = []
+    
     async def loadlog():
         if os.path.exists('logs/log.json'):
             newsize = os.path.getsize('logs/log.json')
@@ -160,3 +222,24 @@ class API(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await APIstart(self)
+        self.code_loop.start()
+
+    @commands.command()
+    async def getcode(self, ctx):
+        if AdminCheck.admin(ctx):
+            code = await get_random_alphanumeric_string(10)
+            now = datetime.datetime.now()
+            expire = now + datetime.timedelta(minutes=30)
+            API.validCodes.append([[expire.year, expire.month, expire.day, expire.hour, expire.minute, expire.second], code, str(ctx.guild.id)])
+            await ctx.author.send('```Your passcode is: {}\nIt will expire in 30 minutes.```'.format(code))
+        else:
+            await ctx.send('Only Administrators may request codes.')
+        
+    @tasks.loop(seconds=1)
+    async def code_loop(self):
+        now = datetime.datetime.now()
+        for i in API.validCodes:
+            a_load = i[0]
+            b = datetime.datetime(a_load[0], a_load[1], a_load[2], a_load[3], a_load[4], a_load[5])
+            if now > b:
+                API.validCodes.remove(i)
