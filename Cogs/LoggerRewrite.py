@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import pickle
 import json
-from Cogs import AdminCheck, LogUpdater
+from Cogs import AdminCheck, LogUpdater, Settings
 import aiofiles
 
 load_dotenv()
@@ -38,8 +38,9 @@ async def run(cmd):
     stdout, stderr = await proc.communicate()
 
 async def optcheck(self, ctx):
+    await loadsettings(self)
     try:
-        if ctx.author.id in self.optouts[ctx.guild.id]:
+        if str(ctx.author.id) in self.settings[ctx.guild.id]['optouts']:
             return True
         else:
             return False
@@ -135,7 +136,9 @@ async def generateLog(self, mode, ctx=None, channel=None, after=None,):
                 tolog = await channel.history(limit=None, oldest_first=True, after=after).flatten()
                 await sender.send("{} messages to log.".format(len(tolog)))
             async for message in channel.history(limit=None, oldest_first=True, after=after):
-                if guild.id in self.optouts and message.author.id in self.optouts[guild.id]:
+                if not 'optouts' in self.settings[guild.id]:
+                    self.settings[guild.id]['optouts'] = []
+                if guild.id in self.settings and str(message.author.id) in self.settings[guild.id]['optouts']:
                     a = {'author':{'author_id': 'Opted out', 'author_displayname': 'Opted Out'}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}, 'links': {}}
                 else:
                     a = {'author':{'author_id': message.author.id, 'author_displayname': message.author.display_name}, 'content': message.clean_content, 'created_at': message.created_at.timestamp(), 'attachments': {}, 'links': {}}
@@ -271,19 +274,25 @@ async def loadlog(self):
         async with aiofiles.open('logs/log.json', 'r') as json_data:
             self.log = json.loads(await json_data.read())
 
+async def loadsettings(self):
+    self.settings = await Settings.setting.load()
+
+async def savesettings(self):
+    await Settings.setting.save(self.settings)
+
 class logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.optouts = {}
+        self.settings = {}
         self.log = {}
         self.logging = False
         self.newmessage = False
         self.nolog = {}
         self.lastlogged = {}
         self.disconnecttime = None
-        if os.path.exists('optouts/optouts.pickle'):
-            with open('optouts/optouts.pickle', 'rb') as handle:
-                self.optouts = pickle.load(handle)
+        #if os.path.exists('optouts/optouts.pickle'):
+        #    with open('optouts/optouts.pickle', 'rb') as handle:
+        #        self.settings = pickle.load(handle)
 
 
         if os.path.exists('optouts/lastlogged.json'):
@@ -301,6 +310,7 @@ class logging(commands.Cog):
         
     @commands.Cog.listener()
     async def on_ready(self):
+        await loadsettings(self)
         await loadlog(self)
         await asyncio.sleep(2)
         await generateLog(self, 0)
@@ -361,33 +371,34 @@ class logging(commands.Cog):
     async def optout(self, ctx):
         try:    
             print("optout triggered")
-            print(ctx.guild.id)
-            if ctx.guild.id not in self.optouts:
-                self.optouts[ctx.guild.id] = []
-            print(self.optouts)
-            self.optouts[ctx.guild.id].append(ctx.author.id)
-            print(self.optouts)
-            await ctx.send("You have successfully opted out")
-            with open('optouts/optouts.pickle', 'wb') as handle:
-                pickle.dump(self.optouts, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            await loadsettings(self)
+            if "optouts" not in self.settings[ctx.guild.id]:
+                self.settings[ctx.guild.id]['optouts'] = []
+            if str(ctx.author.id) not in self.settings[ctx.guild.id]['optouts']:
+                self.settings[ctx.guild.id]['optouts'].append(str(ctx.author.id))
+                await savesettings(self)
+                await ctx.send("You have successfully opted out of logging.")
+            else:
+                await ctx.send("You are already opted out in this server.")
         except Exception as e:
             await ctx.send("There was an error opting out. please try again later. \n Here is the exception details\n ```{}```".format(e))
 
     @commands.command()
     async def optin(self, ctx):
+        await loadsettings(self)
         try:
-            if ctx.guild.id in self.optouts:
-                if ctx.author.id in self.optouts[ctx.guild.id]:
-                    self.optouts[ctx.guild.id].remove(ctx.author.id)
+            if ctx.guild.id in self.settings:
+                if str(ctx.author.id) in self.settings[ctx.guild.id]['optouts']:
+                    self.settings[ctx.guild.id]['optouts'].remove(str(ctx.author.id))
                     await ctx.send("You have successfully opted back in.")
-                    with open('optouts/optouts.pickle', 'wb') as handle:
-                        pickle.dump(self.optouts, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    await savesettings(self)
                 else:
                     await ctx.send("You were never opted out on this server.")
             else:
                 await ctx.send("You were never opted out on this server.")
         except Exception as e:
             await ctx.send("There was an error opting in. please try again later. \n Here is the exception details\n ```{}```".format(e))
+
     @commands.command()
     async def logs(self, ctx):
         if not ctx.guild:
