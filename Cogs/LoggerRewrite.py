@@ -385,13 +385,15 @@ class logging(commands.Cog):
 
     @commands.command()
     async def optin(self, ctx):
-        await loadsettings(self)
         try:
+            await loadsettings(self)
             if ctx.guild.id in self.settings:
                 if str(ctx.author.id) in self.settings[ctx.guild.id]['optouts']:
-                    self.settings[ctx.guild.id]['optouts'].remove(str(ctx.author.id))
-                    await ctx.send("You have successfully opted back in.")
+                    temp = self.settings[ctx.guild.id]['optouts']
+                    temp.remove(str(ctx.author.id))
+                    self.settings[ctx.guild.id]['optouts'] = temp
                     await savesettings(self)
+                    await ctx.send("You have successfully opted back in.")
                 else:
                     await ctx.send("You were never opted out on this server.")
             else:

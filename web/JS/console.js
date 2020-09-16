@@ -67,5 +67,5 @@ function addsetting(key) {
 
 $(window).on('load', function() {
     GetSettings()
-    window.setInterval(function(){GetSettings()}, 5000);
+    window.setInterval(function(){GetSettings()}, 30000);
 });
