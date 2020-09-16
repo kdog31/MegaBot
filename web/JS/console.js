@@ -38,7 +38,6 @@ function GetSettings() {
             click.setAttribute("onclick", "addsetting('"+key+"')")
             click.setAttribute("style", "text-decoration: none;")
             box.setAttribute("type", "text")
-            box.setAttribute("id", "newdata")
             click.appendChild(add)
             intd.appendChild(click)
             intd2.appendChild(box)
@@ -60,7 +59,7 @@ function removesetting(key, index) {
 function addsetting(key) {
     url = "/admin/console/api?token=" + $.cookie('token')
     $.getJSON(url, function(data) {
-        newentry = document.getElementById("newdata").value
+        newentry = document.getElementById(key).value
         data[key].push(newentry)
         $.post('/admin/console/api?token='+$.cookie('token'), JSON.stringify(data), function(){GetSettings()});
     })
@@ -68,4 +67,5 @@ function addsetting(key) {
 
 $(window).on('load', function() {
     GetSettings()
+    window.setInterval(function(){GetSettings()}, 5000);
 });
